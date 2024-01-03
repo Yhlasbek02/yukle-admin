@@ -43,6 +43,12 @@ export default function Transports() {
       await deleteTransport(selectedTransport);
       setSelectedTransport(null);
       await getTransports(currentPage);
+      if (transports.transports.length === 0 && currentPage > 1) {
+        const newPage = currentPage - 1;
+        setCurrentPage(newPage);
+        setStartIndex((newPage - 1) * 8 + 1);
+        await getTransports(newPage);
+      }
     } catch (error) {
       console.error(error);
     }

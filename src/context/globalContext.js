@@ -9,18 +9,18 @@ const GlobalContext = React.createContext()
 
 export const GlobalProvider = ({ children }) => {
 
-    const [users, setUsers] = useState({users: [], totalPages: 1, currentPage:1, totalUsers:1});
-    const [transports, setTransports] = useState({transports: [], totalTransport: 1, currentPage: 1, totalPages:1});
+    const [users, setUsers] = useState({ users: [], totalPages: 1, currentPage: 1, totalUsers: 1 });
+    const [transports, setTransports] = useState({ transports: [], totalTransport: 1, currentPage: 1, totalPages: 1 });
     const [singleTransport, setSingleTransport] = useState([])
-    const [cargos, setCargos] = useState({cargos: [], totalPages: 1, totalCargos: 1, currentPage: 1});
+    const [cargos, setCargos] = useState({ cargos: [], totalPages: 1, totalCargos: 1, currentPage: 1 });
     const [singleCargo, setSingleCargo] = useState([])
-    const [countries, setCountries] = useState({countries: [], totalPages: 1, totalCountry: 1, currentPage: 1})
-    const [allCountries, setAllCountries] = useState({countries: [], totalPages: 1, totalCountry: 1, currentPage: 1})
-    const [cities, setCities] = useState({cities: [], totalPages: 1, totalCities: 1, currentPage: 1})
-    const [messages, setMessages] = useState({messages: [], totalMessages: 1, currentPage: 1, totalPages: 1});
-    const [singleMessage, setSingleMessage] = useState({adminMessages: [], message: []});
-    const [cargoTypes, setCargoTypes] = useState({cargoTypes: [], totalPages: 1, currentPage: 1, totalCargoTypes: 1});
-    const [transportTypes, setTransportTypes] = useState({transportTypes: [], totalPages: 1, totalTransportTypes: 1, currentPage: 1});
+    const [countries, setCountries] = useState({ countries: [], totalPages: 1, totalCountry: 1, currentPage: 1 })
+    const [allCountries, setAllCountries] = useState({ countries: [], totalPages: 1, totalCountry: 1, currentPage: 1 })
+    const [cities, setCities] = useState({ cities: [], totalPages: 1, totalCities: 1, currentPage: 1 })
+    const [messages, setMessages] = useState({ messages: [], totalMessages: 1, currentPage: 1, totalPages: 1 });
+    const [singleMessage, setSingleMessage] = useState({ message: {}, adminMessages: []});
+    const [cargoTypes, setCargoTypes] = useState({ cargoTypes: [], totalPages: 1, currentPage: 1, totalCargoTypes: 1 });
+    const [transportTypes, setTransportTypes] = useState({ transportTypes: [], totalPages: 1, totalTransportTypes: 1, currentPage: 1 });
     const [profile, setProfile] = useState([])
     const [error, setError] = useState(null)
 
@@ -41,7 +41,6 @@ export const GlobalProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.post(`${BASE_URL}logout`);
             localStorage.removeItem('token');
         } catch (error) {
             setError(error.response?.data?.message || 'Logout failed');
@@ -205,7 +204,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteTransport = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}transport/delete/${id}`, {
+            await axios.delete(`${BASE_URL}transport/delete/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -264,7 +263,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteCargo = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}cargo/delete/${id}`, {
+            await axios.delete(`${BASE_URL}cargo/delete/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -272,7 +271,6 @@ export const GlobalProvider = ({ children }) => {
                 .catch((err) => {
                     setError(err.response.data.message || 'Delete cargo error')
                 })
-            setCargos(token)
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "Server error");
@@ -292,7 +290,7 @@ export const GlobalProvider = ({ children }) => {
                     setError(err.response.data.message);
                 })
             setTransportTypes({
-                transportTypes:response.data.transportTypes,
+                transportTypes: response.data.transportTypes,
                 totalPages: response.data.totalPages,
                 totalTransportTypes: response.data.totalTransportTypes,
                 currentPage: response.data.currentPage,
@@ -411,12 +409,12 @@ export const GlobalProvider = ({ children }) => {
     const addCargoType = async (english, russian, turkish) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}cargo-type/add`, 
-            {
-                nameEn: english,
-                nameRu: russian,
-                nameTr: turkish
-            }, {
+            const response = await axios.post(`${BASE_URL}cargo-type/add`,
+                {
+                    nameEn: english,
+                    nameRu: russian,
+                    nameTr: turkish
+                }, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -449,10 +447,10 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const getCountries = async (page) => {
+    const getCountries = async (page, searchKey) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}country?page=${page}`, {
+            const response = await axios.get(`${BASE_URL}country?page=${page}&searchKey=${searchKey}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -466,6 +464,8 @@ export const GlobalProvider = ({ children }) => {
                 totalCountry: response.data.totalCountry,
                 currentPage: response.data.currentPage
             });
+
+            return response.data.totalPages;
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "Countries error");
@@ -554,15 +554,10 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const getCities = async (country, page) => {
+    const getCities = async (country, page, searchKey) => {
         try {
             const token = localStorage.getItem('token');
-            let url = `${BASE_URL}country/cities?page=${page}`;
-            
-            if (country) {
-                url += `&country=${country}`;
-            }
-    
+            let url = `${BASE_URL}country/cities?page=${page}&searchKey=${searchKey}&country=${country}`;
             const response = await axios.get(url, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -574,12 +569,14 @@ export const GlobalProvider = ({ children }) => {
                 totalPages: response.data.totalPages,
                 currentPage: response.data.currentPage
             });
+
+            return response.data.totalPages;
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "Server error");
         }
     };
-    
+
 
     const addCity = async (english, russian, turkish, countryId) => {
         try {
@@ -588,7 +585,7 @@ export const GlobalProvider = ({ children }) => {
                 nameEn: english,
                 nameRu: russian,
                 nameTr: turkish,
-                countryId: countryId
+                countryId: countryId.id
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -628,7 +625,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteCity = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}country/delete-city/${id}`, {
+            await axios.delete(`${BASE_URL}country/delete-city/${id}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -636,7 +633,6 @@ export const GlobalProvider = ({ children }) => {
                 .catch((err) => {
                     setError(err.response.data.message);
                 })
-            setCities(token);
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "Server error");
@@ -646,7 +642,7 @@ export const GlobalProvider = ({ children }) => {
     const addMessage = async (id, message) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}chat/add/${id}`, message, {
+            const response = await axios.post(`${BASE_URL}chat/add/${id}`, {text: message, messageId: id}, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -694,17 +690,36 @@ export const GlobalProvider = ({ children }) => {
                 .catch((err) => {
                     setError(err.response.data.message);
                 })
-                console.log(response.data);
+                
             setSingleMessage({
-                message: response.data.message,
-                adminMessages: response.data.adminMessages
+                adminMessages: response.data.adminMessages,
+                message: response.data.message
+                
             });
-            console.log(response.data);
+            console.log(response.data.message);
+            return response;
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "Server error");
         }
     }
+
+    const deleteMessage = async (id) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`${BASE_URL}chat/delete/${id}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            })
+                .catch((err) => {
+                    setError(err.response.data.message);
+                })
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    } 
 
 
     return (
@@ -770,7 +785,8 @@ export const GlobalProvider = ({ children }) => {
             setSingleMessage,
             singleMessage,
             deleteUser,
-            changePaid
+            changePaid,
+            deleteMessage
         }}>
             {children}
         </GlobalContext.Provider>

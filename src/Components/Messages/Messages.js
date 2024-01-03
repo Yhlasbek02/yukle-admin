@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { InnerLayout } from '../../styles/Layouts';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
-import { trash, get, left, right } from '../../utils/Icons';
+import { trash, left, right, answer } from '../../utils/Icons';
 import moment from 'moment';
-import ReplyModal from '../replyModal/replyModal';
-
+import ReplyModal from '../addModalForm/replyModal';
+import ConfirmationModal from '../ConfirmationModal/Modal';
 export default function Messages() {
-  const { messages, getMessages, getSingleMessage, addMessage, singleMessage } = useGlobalContext();
+  const { messages, getMessages, deleteMessage} = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [startIndex, setStartIndex] = useState(1);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [deleteMessageId, setDeleteMessageId] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,20 +36,35 @@ export default function Messages() {
       console.error(error);
     }
   };
-  const handleAnswerClick = async (id) => {
+  const handleAnswerClick = (id) => {
     setSelectedMessage(id);
-    await getSingleMessage(id);
+    setOpenModal(true)
   };
 
-  const handleConfirmAnswer = async () => {
+  const closeModal = async () => {
+    setOpenModal(false);
+    setSelectedMessage(null);
+  }
+
+  const handleDeleteClick = (id) => {
+    setDeleteMessageId(id);
+  };
+  const handleConfirmDelete = async () => {
     try {
-      await addMessage(selectedMessage);
-      setSelectedMessage(null);
+      await deleteMessage(deleteMessageId);
+      setDeleteMessageId(null);
       await getMessages(currentPage);
+      if (messages.messages.length === 0 && currentPage > 1) {
+        const newPage = currentPage - 1;
+        setCurrentPage(newPage);
+        setStartIndex((newPage - 1) * 8 + 1);
+        await getMessages(newPage);
+      }
     } catch (error) {
       console.error(error);
     }
   };
+  
   return (
     <InnerLayout>
       <UserStyled>
@@ -69,15 +86,34 @@ export default function Messages() {
               const surname = message.sender.surname;
               const email = message.sender.email;
               const date = moment(message.createdAt).format("YYYY-MM-DD");
+              const truncatedMessage =
+                message.text.length > 50
+                  ? `${message.text.substring(0, 50)}...`
+                  : message.text;
               return (
                 <tr key={messageId}>
                   <td>{messageId}</td>
                   <td>{name || ''} {surname || ''}</td>
                   <td>{email || 'Not given'}</td>
-                  <td>{message.text}</td>
+                  <td>{truncatedMessage}</td>
                   <td>{date || 'Not given'}</td>
                   <td>
                   <button
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '1rem',
+                        backgroundColor: 'blue',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginRight: '10px',
+                      }}
+                      onClick={() => handleAnswerClick(message.uuid)}
+                    >
+                      {answer} Answer
+                    </button>
+                    <button
                       style={{
                         padding: '4px 12px',
                         fontSize: '1rem',
@@ -88,9 +124,9 @@ export default function Messages() {
                         cursor: 'pointer',
                         marginRight: '10px',
                       }}
-                      onClick={() => handleAnswerClick(message.sender.id)}
+                      onClick={() => handleDeleteClick(message.uuid)}
                     >
-                      {get} Answer
+                      {trash} Delete
                     </button>
                   </td>
                 </tr>
@@ -114,12 +150,16 @@ export default function Messages() {
           </button>
         </div>
       </UserStyled>
-      
       <ReplyModal
-        isOpen={selectedMessage !== null ? 'true' : undefined}
-        onClose={() => setSelectedMessage(null)}
-        onConfirm={handleConfirmAnswer}
-        message={message.text}
+        isopen={openModal.toString()}
+        onClose={closeModal}
+        messageId={selectedMessage}
+      />
+      <ConfirmationModal
+        isOpen={deleteMessageId !== null ? 'true' : undefined}
+        onClose={() => setDeleteMessageId(null)}
+        onConfirm={handleConfirmDelete}
+        message={'Are you sure to delete?'}
       />
     </InnerLayout>
   )

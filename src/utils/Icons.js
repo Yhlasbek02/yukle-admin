@@ -31,3 +31,4 @@ export const get = <i className="fa-solid fa-eye" style={{color: "blue", cursor:
 export const left = <i className="fa-solid fa-arrow-left"></i>
 export const right = <i className="fa-solid fa-arrow-right"></i>
 export const edit = <i className="fa-solid fa-edit"></i>
+export const answer = <i className="fas fa-reply"></i>;

@@ -73,14 +73,14 @@ const ModalFooter = styled.div`
 `;
 
 
-const AddCountryModal = ({ isopen, onClose}) => {
-  const {addCountry} = useGlobalContext();
+const AddCargoTypeModal = ({ isopen, onClose}) => {
+  const {addCargoType} = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
 
   const handleSave = async () => {
-    await addCountry(english, russian, turkish);
+    await addCargoType(english, russian, turkish);
     console.log(english, russian, turkish);
     setEnglish('');
     setRussian('');
@@ -95,7 +95,7 @@ const AddCountryModal = ({ isopen, onClose}) => {
     <ModalOverlay isopen={isopen} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2 style={{marginRight: "1.2rem"}}>Add Country</h2>
+          <h2 style={{marginRight: "1.2rem"}}>Add Cargo Type</h2>
           <button onClick={onClose}>X</button>
         </ModalHeader>
         <ModalBody>
@@ -130,4 +130,4 @@ const AddCountryModal = ({ isopen, onClose}) => {
 };
 
 
-export default AddCountryModal;
+export default AddCargoTypeModal;

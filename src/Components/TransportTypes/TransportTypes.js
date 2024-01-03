@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import { trash, left, right, edit } from '../../utils/Icons';
 import ConfirmationModal from '../ConfirmationModal/Modal';
-
+import AddTypeModal from '../addModalForm/addTransportType';
+import EditTransportTypeModal from '../addModalForm/editTransportType';
 export default function TransportTypes() {
   const { transportTypes, getTransportTypes, addTransportType, deleteTransportType, editTransportTypes } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,8 +13,10 @@ export default function TransportTypes() {
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
+  const [idEdit, setIdEdit] = useState('');
   const [selectedTransportType, setSelectedTransportType] = useState(null);
-  const [editingTransportType, setEditingTransportType] = useState(null);
+  const [isAddTypeModal, setAddTypeModal] = useState(false);
+  const [isEditTypeModal, setEditTypeModal] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -27,29 +30,27 @@ export default function TransportTypes() {
   }, [currentPage]);
   const page = transportTypes.currentPage;
   const total = transportTypes.totalPages;
-  const handleSave = async () => {
-    try {
-      if (editingTransportType) {
-        await editTransportTypes(editingTransportType, english, russian, turkish);
-      } else {
-        await addTransportType(english, russian, turkish);
-      }
-      setEnglish('');
-      setRussian('');
-      setTurkish('');
-      setEditingTransportType(null);
-      await getTransportTypes(currentPage);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
-  const handleEditClick = (id) => {
-    const transportTypeToEdit = transportTypes.transportTypes.find(type => type.uuid === id);
-    setEnglish(transportTypeToEdit.nameEn || '');
-    setRussian(transportTypeToEdit.nameRu || '');
-    setTurkish(transportTypeToEdit.nameTr || '');
-    setEditingTransportType(id);
+  const openAddTypeModal = () => {
+    setAddTypeModal(true);
+  };
+
+  const closeAddTypeModal = async () => {
+    setAddTypeModal(false);
+    await getTransportTypes(currentPage);
+  };
+
+  const closeEditTypeModal = async () => {
+    setEditTypeModal(false);
+    await getTransportTypes(currentPage);
+  };
+
+  const openEditType = (typeId, english, russian, turkish) => {
+    setIdEdit(typeId);
+    setEnglish(english);
+    setRussian(russian);
+    setTurkish(turkish);
+    setEditTypeModal(true);
   }
 
   const handleDeleteClick = (id) => {
@@ -79,12 +80,10 @@ export default function TransportTypes() {
   return (
     <InnerLayout>
       <UserStyled>
-        <div className='addForm'>
-          <input placeholder='English' value={english} onChange={(e) => setEnglish(e.target.value)}></input>
-          <input placeholder='Russian' value={russian} onChange={(e) => setRussian(e.target.value)}></input>
-          <input placeholder='Turkish' value={turkish} onChange={(e) => setTurkish(e.target.value)}></input>
-          <button onClick={handleSave}>Save</button>
-        </div>
+        
+          <button style={{marginBottom: "10px"}} onClick={openAddTypeModal}>Add Transport Type</button>
+        
+      
         <table>
           <thead>
             <tr>
@@ -116,7 +115,7 @@ export default function TransportTypes() {
                         cursor: 'pointer',
                         marginRight: '10px',
                       }}
-                      onClick={() => handleEditClick(transportType.uuid)}
+                      onClick={() => openEditType(transportType.uuid, transportType.nameEn, transportType.nameRu, transportType.nameTr)}
                     >
                       {edit} Edit
                     </button>
@@ -163,6 +162,18 @@ export default function TransportTypes() {
         onClose={() => setSelectedTransportType(null)}
         onConfirm={handleConfirmDelete}
         message={'Are you sure to delete?'}
+      />
+      <AddTypeModal
+        isopen={isAddTypeModal.toString()}
+        onClose={closeAddTypeModal}
+      />
+      <EditTransportTypeModal
+        isopen={isEditTypeModal.toString()}
+        onClose={closeEditTypeModal}
+        typeId={idEdit}
+        englishData={english}
+        russianData={russian}
+        turkishData={turkish}
       />
     </InnerLayout>
   )

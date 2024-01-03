@@ -22,8 +22,8 @@ export default function Topbar() {
     }, []);
 
     const handleLogout = async () => {
-        await logout();
-        navigate('/login');
+      localStorage.removeItem('token');
+      navigate('/login');
     };
 
     const username = profile?.username || '';

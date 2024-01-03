@@ -73,21 +73,30 @@ const ModalFooter = styled.div`
 `;
 
 
-const AddCountryModal = ({ isopen, onClose}) => {
-  const {addCountry} = useGlobalContext();
+const AddCityModal = ({ isopen, onClose, onSave}) => {
+  const {addCity, allCountries} = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
 
+  const selectCountry = (event) => {
+        const selectedCountryId = event.target.value;
+        const selectedCountryObj = allCountries.countries.find(
+            (country) => country.id === selectedCountryId
+        );
+        setSelectedCountry(selectedCountryObj);
+    };
   const handleSave = async () => {
-    await addCountry(english, russian, turkish);
-    console.log(english, russian, turkish);
+    await addCity(english, russian, turkish, selectedCountry);
+    console.log(english, russian, turkish, selectedCountry);
     setEnglish('');
     setRussian('');
     setTurkish('');
+    setSelectedCountry('');
 
     // Close the modal
-    console.log('Added country');
+    console.log('Added city');
     onClose();
   };
 
@@ -95,7 +104,7 @@ const AddCountryModal = ({ isopen, onClose}) => {
     <ModalOverlay isopen={isopen} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2 style={{marginRight: "1.2rem"}}>Add Country</h2>
+          <h2 style={{marginRight: "1.2rem"}}>Add City</h2>
           <button onClick={onClose}>X</button>
         </ModalHeader>
         <ModalBody>
@@ -120,6 +129,18 @@ const AddCountryModal = ({ isopen, onClose}) => {
             value={turkish}
             onChange={(e) => setTurkish(e.target.value)}
           />
+          <label htmlFor="country">Country:</label>
+          <select
+            id="country"
+            onChange={selectCountry}
+          >
+            <option value={null}>-- Select Country --</option>
+            {allCountries.countries.map((country) => (
+              <option key={country.id} value={country.id}>
+                {country.nameEn}
+              </option>
+            ))}
+          </select>
         </ModalBody>
         <ModalFooter>
           <button onClick={handleSave}>Save</button>
@@ -130,4 +151,4 @@ const AddCountryModal = ({ isopen, onClose}) => {
 };
 
 
-export default AddCountryModal;
+export default AddCityModal;

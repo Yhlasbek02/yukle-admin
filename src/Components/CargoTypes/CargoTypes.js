@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import { trash, edit, left, right } from '../../utils/Icons';
 import ConfirmationModal from '../ConfirmationModal/Modal';
+import AddCargoTypeModal from '../addModalForm/addCargoType';
+import EditCargoTypeModal from '../addModalForm/editCargoTypeModal';
 export default function CargoTypes() {
   const { cargoTypes, getCargoTypes, deleteCargoType, editCargoTypes, addCargoType} = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,7 +14,9 @@ export default function CargoTypes() {
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
   const [selectedCargoType, setSelectedCargoType] = useState(null);
-  const [editingCargoType, setEditingCargoType] = useState(null);
+  const [isAddCargoTypeModalOpen, setAddCargoTypeModalOpen] = useState(false);
+  const [idEdit, setIdEdit] = useState('');
+  const [isEditTypeModal, setEditTypeModal] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,30 +30,20 @@ export default function CargoTypes() {
   }, [currentPage]);
   const page = cargoTypes.currentPage;
   const total = cargoTypes.totalPages;
-  const handleSave = async () => {
-    try {
-      if (editingCargoType) {
-        await editCargoTypes(editingCargoType, english, russian, turkish);
-      } else {
-        await addCargoType(english, russian, turkish);
-      }
-      setEnglish('');
-      setRussian('');
-      setTurkish('');
-      setEditingCargoType(null);
-      await getCargoTypes(currentPage);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
-  const handleEditClick = (id) => {
-    const cargoTypeToEdit = cargoTypes.cargoTypes.find(type => type.uuid === id);
-    setEnglish(cargoTypeToEdit.nameEn || '');
-    setRussian(cargoTypeToEdit.nameRu || '');
-    setTurkish(cargoTypeToEdit.nameTr || '');
-    setEditingCargoType(id);
-  }
+  const openAddCargoTypeModal = () => {
+    setAddCargoTypeModalOpen(true);
+  };
+
+  const closeAddCargoTypeModal = async () => {
+    setAddCargoTypeModalOpen(false);
+    await getCargoTypes(currentPage);
+  };
+
+  const closeEditCargoTypeModal = async () => {
+    setEditTypeModal(false);
+    await getCargoTypes(currentPage);
+  };
 
   const handleDeleteClick = (id) => {
     setSelectedCargoType(id);
@@ -65,6 +59,13 @@ export default function CargoTypes() {
       console.error(error);
     }
   };
+  const openEditCountry = (typeId, english, russian, turkish) => {
+    setIdEdit(typeId);
+    setEnglish(english);
+    setRussian(russian);
+    setTurkish(turkish);
+    setEditTypeModal(true);
+  }
   const handlePageChange = async (newPage) => {
     setCurrentPage(newPage);
     setStartIndex((newPage - 1) * 8 + 1);
@@ -78,12 +79,7 @@ export default function CargoTypes() {
   return (
     <InnerLayout>
       <UserStyled>
-        <div className='addForm'>
-          <input placeholder='English' value={english} onChange={(e) => setEnglish(e.target.value)}></input>
-          <input placeholder='Russian' value={russian} onChange={(e) => setRussian(e.target.value)}></input>
-          <input placeholder='Turkish' value={turkish} onChange={(e) => setTurkish(e.target.value)}></input>
-          <button onClick={handleSave}>Save</button>
-        </div>
+      <button style={{marginBottom: "10px"}} onClick={openAddCargoTypeModal}>Add Cargo Type</button>
         <table>
           <thead>
             <tr>
@@ -115,7 +111,7 @@ export default function CargoTypes() {
                         cursor: 'pointer',
                         marginRight: '10px',
                       }}
-                      onClick={() => handleEditClick(cargoType.uuid)}
+                      onClick={() => openEditCountry(cargoType.uuid, cargoType.nameEn, cargoType.nameRu, cargoType.nameTr)}
                     >
                       {edit} Edit
                     </button>
@@ -162,6 +158,18 @@ export default function CargoTypes() {
         onClose={() => setSelectedCargoType(null)}
         onConfirm={handleConfirmDelete}
         message={'Are you sure to delete?'}
+      />
+      <AddCargoTypeModal
+        isopen={isAddCargoTypeModalOpen.toString()}
+        onClose={closeAddCargoTypeModal}
+      />
+      <EditCargoTypeModal
+        isopen={isEditTypeModal.toString()}
+        onClose={closeEditCargoTypeModal}
+        typeId={idEdit}
+        englishData={english}
+        russianData={russian}
+        turkishData={turkish}
       />
     </InnerLayout>
   )

@@ -41,6 +41,12 @@ export default function Cargos() {
       await deleteCargo(selectedCargo);
       setSelectedCargo(null);
       await getCargos(currentPage);
+      if (cargos.cargos.length === 0 && currentPage > 1) {
+        const newPage = currentPage - 1;
+        setCurrentPage(newPage);
+        setStartIndex((newPage - 1) * 8 + 1);
+        await getCargos(newPage);
+      }
     } catch (error) {
       console.error(error);
     }
