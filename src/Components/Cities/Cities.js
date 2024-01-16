@@ -273,7 +273,7 @@ export default function Cities() {
                                                     )
                                                 }
                                             >
-                                                {edit} Edit
+                                                {edit}
                                             </button>
                                             <button
                                                 style={{
@@ -288,7 +288,7 @@ export default function Cities() {
                                                 }}
                                                 onClick={() => handleDeleteClick(city.uuid)}
                                             >
-                                                {trash} Delete
+                                                {trash}
                                             </button>
                                         </td>
                                     </tr>

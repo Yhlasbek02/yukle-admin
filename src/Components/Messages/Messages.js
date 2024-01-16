@@ -28,7 +28,7 @@ export default function Messages() {
   const total = messages.totalPages;
   const handlePageChange = async (newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 10 + 1);
+    setStartIndex((newPage - 1) * 8 + 1);
     try {
       await getMessages(newPage);
       
@@ -111,7 +111,7 @@ export default function Messages() {
                       }}
                       onClick={() => handleAnswerClick(message.uuid)}
                     >
-                      {answer} Answer
+                      {answer}
                     </button>
                     <button
                       style={{
@@ -126,7 +126,7 @@ export default function Messages() {
                       }}
                       onClick={() => handleDeleteClick(message.uuid)}
                     >
-                      {trash} Delete
+                      {trash}
                     </button>
                   </td>
                 </tr>

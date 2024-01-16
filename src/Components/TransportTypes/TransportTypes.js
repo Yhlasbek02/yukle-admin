@@ -117,7 +117,7 @@ export default function TransportTypes() {
                       }}
                       onClick={() => openEditType(transportType.uuid, transportType.nameEn, transportType.nameRu, transportType.nameTr)}
                     >
-                      {edit} Edit
+                      {edit}
                     </button>
                     <button
                       style={{
@@ -132,7 +132,7 @@ export default function TransportTypes() {
                       }}
                       onClick={() => handleDeleteClick(transportType.uuid)}
                     >
-                      {trash} Delete
+                      {trash}
                     </button>
 
                   </td>

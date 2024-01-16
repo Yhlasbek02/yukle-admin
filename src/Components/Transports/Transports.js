@@ -81,6 +81,10 @@ export default function Transports() {
               }
               const locationName = transport.location_country.nameEn;
               const locationCity = transport.location_city.nameEn;
+              const truncatedCity =
+                locationCity.length > 10
+                  ? `${locationCity.substring(0, 10)}...`
+                  : locationCity;
               const belongsToName = transport.affiliation_country.nameEn;
               const date = moment(transport.createdAt).format("YYYY-MM-DD");
               return (
@@ -91,7 +95,7 @@ export default function Transports() {
                   <td>{transport.email || 'Not given'}</td>
                   <td>{transport.phoneNumber || 'Not given'}</td>
                   <td>{date || 'Not given'}</td>
-                  <td>{locationName || 'Not given'}, {locationCity || 'Not given'}</td>
+                  <td>{locationName || 'Not given'}, {truncatedCity || 'Not given'}</td>
                   <td>{belongsToName || 'Not given'}</td>
                   <td>
                     <button
@@ -107,7 +111,7 @@ export default function Transports() {
                       }}
                       onClick={() => handleDeleteClick(transport.uuid)}
                     >
-                      {trash} Delete
+                      {trash}
                     </button>
                   </td>
                 </tr>

@@ -113,7 +113,7 @@ export default function CargoTypes() {
                       }}
                       onClick={() => openEditCountry(cargoType.uuid, cargoType.nameEn, cargoType.nameRu, cargoType.nameTr)}
                     >
-                      {edit} Edit
+                      {edit}
                     </button>
                     <button
                       style={{
@@ -128,7 +128,7 @@ export default function CargoTypes() {
                       }}
                       onClick={() => handleDeleteClick(cargoType.uuid)}
                     >
-                      {trash} Delete
+                      {trash}
                     </button>
 
                   </td>

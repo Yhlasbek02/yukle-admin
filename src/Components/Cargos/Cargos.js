@@ -26,7 +26,7 @@ export default function Cargos() {
   const total = cargos.totalPages;
   const handlePageChange = async (newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 15 + 1);
+    setStartIndex((newPage - 1) * 6 + 1);
     try {
       await getCargos(newPage);
     } catch (error) {
@@ -44,7 +44,7 @@ export default function Cargos() {
       if (cargos.cargos.length === 0 && currentPage > 1) {
         const newPage = currentPage - 1;
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 8 + 1);
+        setStartIndex((newPage - 1) * 6 + 1);
         await getCargos(newPage);
       }
     } catch (error) {
@@ -81,7 +81,15 @@ export default function Cargos() {
               const fromCountryName = cargo.from_country.nameEn;
               const toCountryName = cargo.to_country.nameEn;
               const fromCityName = cargo.from_city.nameEn;
+              const truncatedFrom =
+                fromCityName.length > 10
+                  ? `${fromCityName.substring(0, 10)}...`
+                  : fromCityName;
               const toCityName = cargo.to_city.nameEn;
+              const truncatedTo =
+                toCityName.length > 10
+                  ? `${toCityName.substring(0, 10)}...`
+                  : toCityName;
               const date = moment(cargo.createdAt).format("YYYY-MM-DD");
               return (
                 <tr key={cargoId}>
@@ -91,8 +99,8 @@ export default function Cargos() {
                   <td>{cargo.email || 'Not given'}</td>
                   <td>{cargo.phoneNumber || 'Not given'}</td>
                   <td>{date || 'Not given'}</td>
-                  <td>{fromCountryName || 'Not given'}, {fromCityName || 'Not given'}</td>
-                  <td>{toCountryName || 'Not given'}, {toCityName || 'Not given'}</td>
+                  <td>{fromCountryName || 'Not given'}, {truncatedFrom || 'Not given'}</td>
+                  <td>{toCountryName || 'Not given'}, {truncatedTo || 'Not given'}</td>
                   <td>{cargo.weight || 'Not given'}</td>
                   <td>
                     <button
@@ -108,7 +116,7 @@ export default function Cargos() {
                       }}
                       onClick={() => handleDeleteClick(cargo.uuid)}
                     >
-                      {trash} Delete
+                      {trash}
                     </button>
                   </td>
                 </tr>

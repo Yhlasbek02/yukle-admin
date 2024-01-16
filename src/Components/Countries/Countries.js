@@ -140,7 +140,7 @@ export default function Countries() {
                         }}
                         onClick={() => openEditCountry(country.uuid, country.nameEn, country.nameRu, country.nameTr)}
                       >
-                        {edit} Edit
+                        {edit}
                       </button>
                       <button
                         style={{
@@ -155,7 +155,7 @@ export default function Countries() {
                         }}
                         onClick={() => handleDeleteClick(country.uuid)}
                       >
-                        {trash} Delete
+                        {trash}
                       </button>
                     </td>
                   </tr>

@@ -105,7 +105,7 @@ export default function Users() {
                                             }}
                                             onClick={() => handleDeleteClick(user.uuid)}
                                         >
-                                            {trash} Delete
+                                            {trash}
                                         </button>
                                         <button
                                             style={{
@@ -120,7 +120,7 @@ export default function Users() {
                                             }}
                                             onClick={() => handlePaidClick(user.uuid)}
                                         >
-                                            {edit} Change paid
+                                            {edit}
                                         </button>
                                     </td>
                                 </tr>
