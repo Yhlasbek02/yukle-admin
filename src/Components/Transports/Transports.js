@@ -25,7 +25,7 @@ export default function Transports() {
   const total = transports.totalPages;
   const handlePageChange = async (newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 15 + 1);
+    setStartIndex((newPage - 1) * 6 + 1);
     try {
       await getTransports(newPage);
 

@@ -88,7 +88,7 @@ export default function ChangePassword() {
   async function changePassword(event) {
     event.preventDefault();
     const token = localStorage.getItem('token');
-    const response = await fetch('http://216.250.8.223:3001/api/admin/change-password', {
+    const response = await fetch('http://localhost:3001/api/admin/change-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

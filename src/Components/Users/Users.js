@@ -9,7 +9,7 @@ export default function Users() {
     const [currentPage, setCurrentPage] = useState(1);
     const [startIndex, setStartIndex] = useState(1);
     const [selectedUser, setSelectedUser] = useState(null);
-
+    const [selectedDetele, setSelectedDelete] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -30,7 +30,7 @@ export default function Users() {
 
     const handlePageChange = async (newPage) => {
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 10 + 1);
+        setStartIndex((newPage - 1) * 8 + 1);
         try {
             await getUsers(newPage);
         } catch (error) {
@@ -39,7 +39,7 @@ export default function Users() {
     };
 
     const handleDeleteClick = (id) => {
-        setSelectedUser(id);
+        setSelectedDelete(id);
     };
 
     const handlePaidClick = (id) => {
@@ -48,13 +48,23 @@ export default function Users() {
 
     const handleConfirmDelete = async () => {
         try {
-            await deleteUser(selectedUser);
-            setSelectedUser(null);
-            await getUsers(currentPage);
+            await deleteUser(selectedDetele);
+            setSelectedDelete(null);
+
+            
+            if (users.users.length === 0 && currentPage > 1) { // Check for empty current page
+                const newPage = currentPage - 1;
+                setCurrentPage(newPage);
+                setStartIndex((newPage - 1) * 6 + 1);
+                await getUsers(newPage);
+            } else {
+                await getUsers(currentPage);
+            }
         } catch (error) {
             console.error(error);
         }
     };
+
 
     const handleConfirmPaid = async () => {
         try {
@@ -90,7 +100,7 @@ export default function Users() {
                                     <td>{user.surname || 'Not given'}</td>
                                     <td>{user.email || 'Not given'}</td>
                                     <td>{user.phoneNumber || 'Not given'}</td>
-                                    <td>{user.paid ? <p style={{color: "blue"}}>true</p> : <p style={{color: "red"}}>false</p>}</td>
+                                    <td>{user.paid ? <p style={{ color: "blue" }}>true</p> : <p style={{ color: "red" }}>false</p>}</td>
                                     <td>
                                         <button
                                             style={{
@@ -145,8 +155,8 @@ export default function Users() {
                 </div>
             </UserStyled>
             <ConfirmationModal
-                isOpen={selectedUser !== null ? 'true' : undefined}
-                onClose={() => setSelectedUser(null)}
+                isOpen={selectedDetele !== null ? 'true' : undefined}
+                onClose={() => setSelectedDelete(null)}
                 onConfirm={handleConfirmDelete}
                 message={'Are you sure to delete?'}
             />
