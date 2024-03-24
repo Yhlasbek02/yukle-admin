@@ -71,7 +71,7 @@ export default function ForgotPassword() {
     const navigate = useNavigate();
     async function sendMessage(event) {
         event.preventDefault();
-        const response = await fetch('http://localhost:3001/api/admin/forgot-password', {
+        const response = await fetch('http://216.250.11.247:8080/api/admin/forgot-password', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

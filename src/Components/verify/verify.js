@@ -148,7 +148,7 @@ export default function Verify() {
   async function sendMessage(event) {
     event.preventDefault();
     const enteredOTP = otp.join('');
-    const response = await fetch('http://localhost:3001/api/admin/verify', {
+    const response = await fetch('http://216.250.11.247:8080/api/admin/verify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
