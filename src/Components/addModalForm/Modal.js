@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
+import { TextField, Button } from '@mui/material';
 
 const ModalOverlay = styled.div.attrs((props) => ({
   style: {
@@ -35,99 +36,86 @@ const ModalHeader = styled.div`
   h2 {
     margin: 0;
   }
-
-  button {
-    padding: 8px;
-    cursor: pointer;
-  }
 `;
 
 const ModalBody = styled.div`
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+  margin-bottom: 20px;
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
-
-  button {
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-  }
 `;
 
-
-const AddCountryModal = ({ isopen, onClose}) => {
-  const {addCountry} = useGlobalContext();
+const AddCountryModal = ({ isopen, onClose }) => {
+  const { addCountry } = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
+  const [turkmen, setTurkmen] = useState('');
 
   const handleSave = async () => {
-    await addCountry(english, russian, turkish);
-    console.log(english, russian, turkish);
+    await addCountry(english, russian, turkish, turkmen);
     setEnglish('');
     setRussian('');
     setTurkish('');
-
-    // Close the modal
-    console.log('Added country');
     onClose();
   };
 
   return (
-    <ModalOverlay isopen={isopen} onClick={onClose}>
+    <ModalOverlay isopen={isopen.toString()} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2 style={{marginRight: "1.2rem"}}>Add Country</h2>
-          <button onClick={onClose}>X</button>
+          <h2 style={{ marginRight: '1.2rem' }}>Add Country</h2>
+          <Button variant="outlined" color="error" onClick={onClose}>
+            Close
+          </Button>
         </ModalHeader>
         <ModalBody>
-          <label htmlFor="english">English:</label>
-          <input
-            type="text"
-            id="english"
+          <TextField
+            fullWidth
+            label="English"
+            variant="outlined"
             value={english}
             onChange={(e) => setEnglish(e.target.value)}
+            margin="normal"
           />
-          <label htmlFor="russian">Russian:</label>
-          <input
-            type="text"
-            id="russian"
+          <TextField
+            fullWidth
+            label="Russian"
+            variant="outlined"
             value={russian}
             onChange={(e) => setRussian(e.target.value)}
+            margin="normal"
           />
-          <label htmlFor="turkish">Turkish:</label>
-          <input
-            type="text"
-            id="turkish"
+          <TextField
+            fullWidth
+            label="Turkish"
+            variant="outlined"
             value={turkish}
             onChange={(e) => setTurkish(e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Turkmen"
+            value={turkmen}
+            onChange={(e) => setTurkmen(e.target.value)}
+            margin="normal"
+            variant="outlined"
           />
         </ModalBody>
         <ModalFooter>
-          <button onClick={handleSave}>Save</button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
         </ModalFooter>
       </ModalContainer>
     </ModalOverlay>
   );
 };
-
 
 export default AddCountryModal;

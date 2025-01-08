@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
-import { TextField, Button } from '@mui/material';
+import { Modal, TextField, Button, Typography, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 const ModalOverlay = styled.div.attrs((props) => ({
   style: {
@@ -33,92 +34,83 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-
-  h2 {
-    margin: 0;
-  }
-
-  button {
-    padding: 8px;
-    cursor: pointer;
-  }
 `;
 
 const ModalBody = styled.div`
-  margin-bottom: 15px;
+  .MuiTextField-root {
+    width: 100%;
+    margin-bottom: 15px;
+  }
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
 `;
 
-const AddTypeModal = ({ isopen, onClose }) => {
-  const { addTransportType } = useGlobalContext();
+const EditDangerousTypeModal = ({ isopen, onClose, typeId, englishData, russianData, turkishData, turkmenData }) => {
+  const { editDangerousType } = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
   const [turkmen, setTurkmen] = useState('');
 
-  const handleSave = async () => {
-    await addTransportType(english, russian, turkish, turkmen);
-    setEnglish('');
-    setRussian('');
-    setTurkish('');
-    setTurkmen('');
+  useEffect(() => {
+    setEnglish(englishData);
+    setRussian(russianData);
+    setTurkish(turkishData);
+    setTurkmen(turkmenData)
+  }, [englishData, russianData, turkishData, turkmenData]);
 
-    onClose();
+  const handleSave = async () => {
+    try {
+      await editDangerousType(typeId, english, russian, turkish, turkmen);
+      setEnglish('');
+      setRussian('');
+      setTurkish('');
+      setTurkmen('');
+      onClose();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <ModalOverlay isopen={isopen} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2>Add Transport Type</h2>
-          <Button onClick={onClose} color="error" variant="contained" size="small">
-            Close
-          </Button>
+          <Typography variant="h6">Edit Dangerous Type</Typography>
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
         </ModalHeader>
         <ModalBody>
           <TextField
-            fullWidth
             label="English"
             value={english}
             onChange={(e) => setEnglish(e.target.value)}
-            margin="normal"
             variant="outlined"
           />
           <TextField
-            fullWidth
             label="Russian"
             value={russian}
             onChange={(e) => setRussian(e.target.value)}
-            margin="normal"
             variant="outlined"
           />
           <TextField
-            fullWidth
             label="Turkish"
             value={turkish}
             onChange={(e) => setTurkish(e.target.value)}
-            margin="normal"
             variant="outlined"
           />
           <TextField
-            fullWidth
             label="Turkmen"
             value={turkmen}
             onChange={(e) => setTurkmen(e.target.value)}
-            margin="normal"
             variant="outlined"
           />
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            size="large"
-          >
+          <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>
         </ModalFooter>
@@ -127,4 +119,4 @@ const AddTypeModal = ({ isopen, onClose }) => {
   );
 };
 
-export default AddTypeModal;
+export default EditDangerousTypeModal;

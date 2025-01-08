@@ -5,6 +5,8 @@ import Main from './Components/Main/Main';
 import ForgotPassword from './Components/forgotPassword/forgotPassword';
 import Verify from './Components/verify/verify';
 import ChangePassword from './Components/changePassword/changePassword';
+import 'font-awesome/css/font-awesome.min.css';
+
 const router = createBrowserRouter([
   {
     path: '/login',
@@ -32,9 +34,9 @@ const router = createBrowserRouter([
 function App() {
 
   return (
-    <main>
+    <>
       <RouterProvider router={router}></RouterProvider>
-    </main>
+    </>
 
   );
 }

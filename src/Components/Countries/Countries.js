@@ -1,66 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { InnerLayout } from '../../styles/Layouts';
-import styled from 'styled-components';
-import { useGlobalContext } from '../../context/globalContext';
-import { trash, left, right, edit } from '../../utils/Icons';
+import { Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination, Typography } from '@mui/material';
+import { Delete, Edit, Search } from '@mui/icons-material';
 import ConfirmationModal from '../ConfirmationModal/Modal';
 import AddCountryModal from '../addModalForm/Modal';
 import EditCountryModal from '../addModalForm/editCountryModal';
+import { useGlobalContext } from '../../context/globalContext';
+
 export default function Countries() {
   const { countries, getCountries, deleteCountry } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const [startIndex, setStartIndex] = useState(1);
+  const [searchKey, setSearchKey] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isAddCountryModalOpen, setAddCountryModalOpen] = useState(false);
+  const [isEditCountryModal, setEditCountryModal] = useState(false);
   const [englishEdit, setEnglishEdit] = useState('');
   const [russianEdit, setRussianEdit] = useState('');
   const [turkishEdit, setTurkishEdit] = useState('');
+  const [turkmenEdit, setTurkmenEdit] = useState('');
   const [countryIdEdit, setCountryIdEdit] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [searchKey, setSearchKey] = useState('');
-  const [isAddCountryModalOpen, setAddCountryModalOpen] = useState(false);
-  const [isEditCountryModal, setEditCountryModal] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const updatedTotalPages = await getCountries(currentPage, searchKey);
         if (searchKey && currentPage > updatedTotalPages) {
           setCurrentPage(updatedTotalPages);
-          setStartIndex((updatedTotalPages - 1) * 8 + 1);
         }
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchData();
   }, [currentPage, searchKey]);
-  const openAddCountryModal = () => {
-    setAddCountryModalOpen(true);
-  };
 
-  const openEditCountry = (countryId, english, russian, turkish) => {
-    setCountryIdEdit(countryId);
-    setEnglishEdit(english);
-    setRussianEdit(russian);
-    setTurkishEdit(turkish);
-    setEditCountryModal(true);
-  }
-
+  const openAddCountryModal = () => setAddCountryModalOpen(true);
   const closeAddCountryModal = async () => {
     setAddCountryModalOpen(false);
     await getCountries(currentPage, searchKey);
   };
 
-  const closeEditModal = async () => {
-    setEditCountryModal(false);
-    await getCountries(currentPage, searchKey);
-  }
-
-  const page = countries.currentPage;
-  const total = countries.totalPages;
-  const handleDeleteClick = (id) => {
-    setSelectedCountry(id);
+  const openEditCountry = (id, english, russian, turkish, turkmen) => {
+    setCountryIdEdit(id);
+    setEnglishEdit(english);
+    setRussianEdit(russian);
+    setTurkishEdit(turkish);
+    setTurkmenEdit(turkmen);
+    setEditCountryModal(true);
   };
 
+  const closeEditCountryModal = async () => {
+    setEditCountryModal(false);
+    await getCountries(currentPage, searchKey);
+  };
+
+  const handleDeleteClick = (id) => setSelectedCountry(id);
   const handleConfirmDelete = async () => {
     try {
       await deleteCountry(selectedCountry);
@@ -71,14 +64,8 @@ export default function Countries() {
     }
   };
 
-  const handlePageChange = async (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 7 + 1);
-    try {
-      await getCountries(newPage, searchKey);
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const handleSearchChange = (event) => {
@@ -86,104 +73,78 @@ export default function Countries() {
   };
 
   return (
-    <InnerLayout>
-      <UserStyled>
-        <div style={{marginBottom: "1rem"}}>
-          <input
-            type="text"
-            id="search"
-            value={searchKey}
-            onChange={handleSearchChange}
-            placeholder='Search...'
-            style={{padding: "0.5rem", borderRadius: "10px", width: "30%"}}
-          />
-          <button onClick={openAddCountryModal}>Add Country</button>
-        </div>
+    <Box sx={{ padding: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1 }}>
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="small"
+          value={searchKey}
+          onChange={handleSearchChange}
+          InputProps={{
+            endAdornment: <Search />,
+          }}
+          sx={{ flex: 1, marginRight: 2 }}
+        />
+        <Button variant="contained" onClick={openAddCountryModal}>
+          Add Country
+        </Button>
+      </Box>
 
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>English</th>
-              <th>Russian</th>
-              <th>Turkish</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {countries.countries
-              .filter(
-                (country) =>
-                  country.nameEn.toLowerCase().includes(searchKey.toLowerCase()) ||
-                  country.nameRu.toLowerCase().includes(searchKey.toLowerCase()) ||
-                  country.nameTr.toLowerCase().includes(searchKey.toLowerCase())
-              )
-              .map((country, index) => {
-                const transportId = index + startIndex;
-                return (
-                  <tr key={transportId}>
-                    <td>{transportId}</td>
-                    <td>{country.nameEn || 'Not given'}</td>
-                    <td>{country.nameRu || 'Not given'}</td>
-                    <td>{country.nameTr || 'Not given'}</td>
-                    <td>
-                      <button
-                        style={{
-                          padding: '4px 12px',
-                          fontSize: '1rem',
-                          backgroundColor: '#3498db',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          marginRight: '10px',
-                        }}
-                        onClick={() => openEditCountry(country.uuid, country.nameEn, country.nameRu, country.nameTr)}
-                      >
-                        {edit}
-                      </button>
-                      <button
-                        style={{
-                          padding: '4px 12px',
-                          fontSize: '1rem',
-                          backgroundColor: '#e74c3c',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          marginRight: '10px',
-                        }}
-                        onClick={() => handleDeleteClick(country.uuid)}
-                      >
-                        {trash}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-        <div className='pagination'>
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={parseInt(page) === 1}
-          >
-            {left}
-          </button>
-          <span> Page {page} of {total} </span>
-          <button
-            onClick={() => handlePageChange(parseInt(page) + 1)}
-            disabled={parseInt(page) === parseInt(total)}
-          >
-            {right}
-          </button>
-        </div>
-      </UserStyled>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{background: "blue"}}>
+              <TableCell sx={{ color: "#fff" }}>ID</TableCell>
+              <TableCell sx={{ color: "#fff" }}>English</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Russian</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Turkish</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Turkmen</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {countries.countries.map((country, index) => (
+              <TableRow key={country.uuid}>
+                <TableCell>{(currentPage - 1) * 6 + index + 1}</TableCell>
+                <TableCell>{country.nameEn || 'Not given'}</TableCell>
+                <TableCell>{country.nameRu || 'Not given'}</TableCell>
+                <TableCell>{country.nameTr || 'Not given'}</TableCell>
+                <TableCell>{country.nameTm || 'Not given'}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => openEditCountry(country.uuid, country.nameEn, country.nameRu, country.nameTr, country.nameTm)}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDeleteClick(country.uuid)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <Pagination
+          count={countries.totalPages}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
+
       <ConfirmationModal
-        isOpen={selectedCountry !== null ? 'true' : undefined}
+        isOpen={Boolean(selectedCountry)}
         onClose={() => setSelectedCountry(null)}
         onConfirm={handleConfirmDelete}
-        message={'Are you sure to delete?'}
+        message="Are you sure you want to delete this country?"
       />
       <AddCountryModal
         isopen={isAddCountryModalOpen.toString()}
@@ -191,90 +152,13 @@ export default function Countries() {
       />
       <EditCountryModal
         isopen={isEditCountryModal.toString()}
-        onClose={closeEditModal}
+        onClose={closeEditCountryModal}
         countryId={countryIdEdit}
         englishData={englishEdit}
         russianData={russianEdit}
         turkishData={turkishEdit}
+        turkmenData={turkmenEdit}
       />
-    </InnerLayout>
+    </Box>
   );
 }
-
-const UserStyled = styled.div`
-  .addForm {
-    display: flex;
-    width: 75%;
-    margin-bottom: 1rem;
-  }
-  .addForm input {
-    width: 33%;
-    height: 30px;
-    margin-right: 10px;
-    border-radius: 4px;
-    padding: 0.5rem;
-  }
-  .pagination {
-    justify-content: center;
-    align-items: center;
-  }
-  span {
-    padding: 0 0.5rem;
-    margin-top: 1rem;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #000;
-    margin-bottom: 1rem;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 0.6rem;
-  }
-
-  th, td {
-    font-size: 0.85rem;
-    padding: 0.55rem;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-
-  th {
-    background-color: #f2f2f2;
-  }
-
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-
-  tr:hover {
-    background-color: #f0f0f0;
-  }
-
-  p {
-    margin-top: 1rem;
-    font-size: 1rem;
-  }
-
-  div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.75rem;
-  }
-
-  button {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-    &:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  }
-`;

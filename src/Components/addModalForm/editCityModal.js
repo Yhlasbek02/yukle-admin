@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
-
+import { Button, TextField, Select, MenuItem } from '@mui/material';
 const ModalOverlay = styled.div.attrs((props) => ({
-    style: {
-        display: props.isopen === 'true' ? 'block' : 'none',
-    },
+  style: {
+    display: props.isopen === 'true' ? 'block' : 'none',
+  },
 }))`
   position: fixed;
   top: 0;
@@ -43,103 +43,93 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+  margin-bottom: 15px;
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
-
-  button {
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-  }
 `;
 
 
-const EditCityModal = ({ isopen, onClose, cityId, englishData, russianData, turkishData, countryId }) => {
-    const { editCity } = useGlobalContext();
-    
-    const [english, setEnglish] = useState('');
-    const [russian, setRussian] = useState('');
-    const [turkish, setTurkish] = useState('');
-    useEffect(() => {
-        // Update state when props change
-        setEnglish(englishData);
-        setRussian(russianData);
-        setTurkish(turkishData);
-    }, [englishData, russianData, turkishData]);
+const EditCityModal = ({ isopen, onClose, cityId, englishData, russianData, turkishData, turkmenData, countryId }) => {
+  const { editCity } = useGlobalContext();
 
-    const handleSave = async () => {
-        try {
-            await editCity(cityId, english, russian, turkish, countryId);
-            console.log(cityId, english, russian, turkish, countryId);
-            setEnglish('');
-            setRussian('');
-            setTurkish('');
+  const [english, setEnglish] = useState('');
+  const [russian, setRussian] = useState('');
+  const [turkish, setTurkish] = useState('');
+  const [turkmen, setTurkmen] = useState('');
+  useEffect(() => {
+    setEnglish(englishData);
+    setRussian(russianData);
+    setTurkish(turkishData);
+    setTurkmen(turkmenData)
+  }, [englishData, russianData, turkishData, turkmenData]);
 
-            // Close the modal
-            console.log('Edited city');
-            onClose();
-        } catch (error) {
-            console.log(error);
-        }
+  const handleSave = async () => {
+    try {
+      await editCity(cityId, english, russian, turkish, turkmen, countryId);
+      setEnglish('');
+      setRussian('');
+      setTurkish('');
+      setTurkmen('');
+      onClose();
+    } catch (error) {
+      console.log(error);
+    }
 
-    };
+  };
 
-    return (
-        <ModalOverlay isopen={isopen} onClick={onClose}>
-            <ModalContainer onClick={(e) => e.stopPropagation()}>
-                <ModalHeader>
-                    <h2 style={{marginRight: "1.2rem"}}>Edit City</h2>
-                    <button onClick={onClose}>X</button>
-                </ModalHeader>
-                <ModalBody>
-                    <label htmlFor="english">English:</label>
-                    <input
-                        type="text"
-                        id="english"
-                        value={english}
-                        onChange={(e) => setEnglish(e.target.value)}
-                    />
-                    <label htmlFor="russian">Russian:</label>
-                    <input
-                        type="text"
-                        id="russian"
-                        value={russian}
-                        onChange={(e) => setRussian(e.target.value)}
-                    />
-                    <label htmlFor="turkish">Turkish:</label>
-                    <input
-                        type="text"
-                        id="turkish"
-                        value={turkish}
-                        onChange={(e) => setTurkish(e.target.value)}
-                    />
-
-                </ModalBody>
-                <ModalFooter>
-                    <button onClick={handleSave}>Save</button>
-                </ModalFooter>
-            </ModalContainer>
-        </ModalOverlay>
-    );
+  return (
+    <ModalOverlay isopen={isopen.toString()} onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <ModalHeader>
+          <h2>Edit City</h2>
+          <Button variant="contained" color="error" onClick={onClose}>
+            X
+          </Button>
+        </ModalHeader>
+        <ModalBody>
+          <TextField
+            fullWidth
+            label="English"
+            value={english}
+            onChange={(e) => setEnglish(e.target.value)}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Russian"
+            value={russian}
+            onChange={(e) => setRussian(e.target.value)}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Turkish"
+            value={turkish}
+            onChange={(e) => setTurkish(e.target.value)}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Turkmen"
+            value={turkmen}
+            onChange={(e) => setTurkmen(e.target.value)}
+            margin="normal"
+            variant="outlined"
+          />
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Save
+          </Button>
+        </ModalFooter>
+      </ModalContainer>
+    </ModalOverlay>
+  );
 };
 
 

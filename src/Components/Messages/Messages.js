@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { InnerLayout } from '../../styles/Layouts';
-import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import { trash, left, right, answer } from '../../utils/Icons';
 import moment from 'moment';
 import ReplyModal from '../addModalForm/replyModal';
 import ConfirmationModal from '../ConfirmationModal/Modal';
+import { Table, TableBody, TableCell, TableHead, TableRow, Button, Box, Typography } from '@mui/material';
+import { Delete, Message } from '@mui/icons-material';
+
 export default function Messages() {
-  const { messages, getMessages, deleteMessage} = useGlobalContext();
+  const { messages, getMessages, deleteMessage } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [startIndex, setStartIndex] = useState(1);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [deleteMessageId, setDeleteMessageId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -24,31 +27,34 @@ export default function Messages() {
 
     fetchData();
   }, [currentPage]);
+
   const page = messages.currentPage;
   const total = messages.totalPages;
+
   const handlePageChange = async (newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 8 + 1);
+    setStartIndex((newPage - 1) * 6 + 1);
     try {
       await getMessages(newPage);
-      
     } catch (error) {
       console.error(error);
     }
   };
+
   const handleAnswerClick = (id) => {
     setSelectedMessage(id);
-    setOpenModal(true)
+    setOpenModal(true);
   };
 
   const closeModal = async () => {
     setOpenModal(false);
     setSelectedMessage(null);
-  }
+  };
 
   const handleDeleteClick = (id) => {
     setDeleteMessageId(id);
   };
+
   const handleConfirmDelete = async () => {
     try {
       await deleteMessage(deleteMessageId);
@@ -57,29 +63,29 @@ export default function Messages() {
       if (messages.messages.length === 0 && currentPage > 1) {
         const newPage = currentPage - 1;
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 8 + 1);
+        setStartIndex((newPage - 1) * 6 + 1);
         await getMessages(newPage);
       }
     } catch (error) {
       console.error(error);
     }
   };
-  
+
   return (
     <InnerLayout>
-      <UserStyled>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Message</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      <Box sx={{ overflowX: 'auto' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{background: "blue"}}>
+              <TableCell sx={{color: "#fff"}}>ID</TableCell>
+              <TableCell sx={{color: "#fff"}}>Name</TableCell>
+              <TableCell sx={{color: "#fff"}}>Email</TableCell>
+              <TableCell sx={{color: "#fff"}}>Message</TableCell>
+              <TableCell sx={{color: "#fff"}}>Date</TableCell>
+              <TableCell sx={{color: "#fff"}}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {messages.messages.map((message, index) => {
               const messageId = index + startIndex;
               const name = message.sender.name;
@@ -90,66 +96,53 @@ export default function Messages() {
                 message.text.length > 50
                   ? `${message.text.substring(0, 50)}...`
                   : message.text;
+
               return (
-                <tr key={messageId}>
-                  <td>{messageId}</td>
-                  <td>{name || ''} {surname || ''}</td>
-                  <td>{email || 'Not given'}</td>
-                  <td>{truncatedMessage}</td>
-                  <td>{date || 'Not given'}</td>
-                  <td>
-                  <button
-                      style={{
-                        padding: '4px 12px',
-                        fontSize: '1rem',
-                        backgroundColor: 'blue',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginRight: '10px',
-                      }}
+                <TableRow key={messageId}>
+                  <TableCell>{messageId}</TableCell>
+                  <TableCell>{name || ''} {surname || ''}</TableCell>
+                  <TableCell>{email || 'Not given'}</TableCell>
+                  <TableCell>{truncatedMessage}</TableCell>
+                  <TableCell>{date || 'Not given'}</TableCell>
+                  <TableCell>
+                    <Button
+                      sx={{ mr: 2, backgroundColor: 'blue', color: '#fff' }}
                       onClick={() => handleAnswerClick(message.uuid)}
                     >
-                      {answer}
-                    </button>
-                    <button
-                      style={{
-                        padding: '4px 12px',
-                        fontSize: '1rem',
-                        backgroundColor: '#e74c3c',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginRight: '10px',
-                      }}
+                      <Message />
+                    </Button>
+                    <Button
+                      sx={{ backgroundColor: '#e74c3c', color: '#fff' }}
                       onClick={() => handleDeleteClick(message.uuid)}
                     >
-                      {trash}
-                    </button>
-                  </td>
-                </tr>
+                      <Delete />
+                    </Button>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-        <div className='pagination'>
-          <button
+          </TableBody>
+        </Table>
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+          <Button
             onClick={() => handlePageChange(page - 1)}
             disabled={parseInt(page) === 1}
           >
-            {left}
-          </button>
-          <span> Page {page} of {total} </span>
-          <button
+            {`<`}
+          </Button>
+          <Typography variant="body2" sx={{ mx: 2 }}>
+            Page {page} of {total}
+          </Typography>
+          <Button
             onClick={() => handlePageChange(parseInt(page) + 1)}
             disabled={parseInt(page) === parseInt(total)}
           >
-            {right}
-          </button>
-        </div>
-      </UserStyled>
+            {`>`}
+          </Button>
+        </Box>
+      </Box>
+
       <ReplyModal
         isopen={openModal.toString()}
         onClose={closeModal}
@@ -162,72 +155,5 @@ export default function Messages() {
         message={'Are you sure to delete?'}
       />
     </InnerLayout>
-  )
+  );
 }
-
-const UserStyled = styled.div`
-    .pagination {
-      justify-content: center;
-      align-items: center;
-    }
-    span {
-        padding: 0 0.5rem;
-        margin-top: 1rem;
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: #000;
-        margin-bottom: 1rem;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 0.6rem;
-    }
-
-    th, td {
-      font-size: 0.85rem;
-        padding: 0.55rem;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tr:hover {
-        background-color: #f0f0f0;
-    }
-
-    p {
-        margin-top: 1rem;
-        font-size: 1rem;
-    }
-
-    div {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 0.75rem;
-    }
-
-    button {
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        background-color: #4caf50;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        outline: none;
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-    }
-`;
-

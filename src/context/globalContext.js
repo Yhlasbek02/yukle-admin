@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react"
 import axios from 'axios'
 
 
-const BASE_URL = "http://216.250.11.247:8080/api/admin/";
+const BASE_URL = "http://216.250.9.3:3001/api/admin/";
 
 
 const GlobalContext = React.createContext()
@@ -281,7 +281,7 @@ export const GlobalProvider = ({ children }) => {
     const getTransportTypes = async (page) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}transport-type?page=${page}`, {
+            const response = await axios.get(`${BASE_URL}transport-type?page=${page}&pageSize=6`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -301,13 +301,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const addTransportType = async (english, russian, turkish) => {
+    const addTransportType = async (english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}transport-type/add`, {
+            await axios.post(`${BASE_URL}transport-type/add`, {
                 nameEn: english,
                 nameRu: russian,
-                nameTr: turkish
+                nameTr: turkish,
+                nameTm: turkmen
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -326,7 +327,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteTransportType = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}transport-type/delete/${id}`, {
+            await axios.delete(`${BASE_URL}transport-type/delete/${id}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -341,13 +342,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const editTransportTypes = async (id, english, russian, turkish) => {
+    const editTransportTypes = async (id, english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`${BASE_URL}transport-type/edit/${id}`, {
+            await axios.put(`${BASE_URL}transport-type/edit/${id}`, {
                 nameEn: english,
                 nameRu: russian,
-                nameTr: turkish
+                nameTr: turkish,
+                nameTm: turkmen
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -362,13 +364,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const editCargoTypes = async (id, english, russian, turkish) => {
+    const editCargoTypes = async (id, english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`${BASE_URL}cargo-type/edit/${id}`, {
+            await axios.put(`${BASE_URL}cargo-type/edit/${id}`, {
                 nameEn: english,
                 nameRu: russian,
-                nameTr: turkish
+                nameTr: turkish,
+                nameTm: turkmen
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -386,7 +389,7 @@ export const GlobalProvider = ({ children }) => {
     const getCargoTypes = async (page) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}cargo-type?page=${page}`, {
+            const response = await axios.get(`${BASE_URL}cargo-type?page=${page}&pageSize=6`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -406,14 +409,15 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const addCargoType = async (english, russian, turkish) => {
+    const addCargoType = async (english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}cargo-type/add`,
+            await axios.post(`${BASE_URL}cargo-type/add`,
                 {
                     nameEn: english,
                     nameRu: russian,
-                    nameTr: turkish
+                    nameTr: turkish,
+                    nameTm: turkmen
                 }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -432,7 +436,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteCargoType = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}cargo-type/delete/${id}`, {
+            await axios.delete(`${BASE_URL}cargo-type/delete/${id}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -450,7 +454,7 @@ export const GlobalProvider = ({ children }) => {
     const getCountries = async (page, searchKey) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}country?page=${page}&searchKey=${searchKey}`, {
+            const response = await axios.get(`${BASE_URL}country?page=${page}&pageSize=6&searchKey=${searchKey}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -495,13 +499,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const addCountry = async (english, russian, turkish) => {
+    const addCountry = async (english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}country/add`, {
+            await axios.post(`${BASE_URL}country/add`, {
                 nameEn: english,
                 nameRu: russian,
-                nameTr: turkish
+                nameTr: turkish,
+                nameTm: turkmen
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -519,7 +524,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteCountry = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`${BASE_URL}country/delete/${id}`, {
+            await axios.delete(`${BASE_URL}country/delete/${id}`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -533,13 +538,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const editCountry = async (id, english, russian, turkish) => {
+    const editCountry = async (id, english, russian, turkish, turkmen) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`${BASE_URL}country/edit/${id}`, {
+            await axios.put(`${BASE_URL}country/edit/${id}`, {
                 nameEn: english,
                 nameRu: russian,
-                nameTr: turkish
+                nameTr: turkish,
+                nameTm: turkmen
             }, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -557,7 +563,7 @@ export const GlobalProvider = ({ children }) => {
     const getCities = async (country, page, searchKey) => {
         try {
             const token = localStorage.getItem('token');
-            let url = `${BASE_URL}country/cities?page=${page}&searchKey=${searchKey}&country=${country}`;
+            let url = `${BASE_URL}country/cities?page=${page}&searchKey=${searchKey}&pageSize=6&country=${country}`;
             const response = await axios.get(url, {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -578,13 +584,14 @@ export const GlobalProvider = ({ children }) => {
     };
 
 
-    const addCity = async (english, russian, turkish, countryId) => {
+    const addCity = async (english, russian, turkish, turkmen, countryId) => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(`${BASE_URL}country/add-city`, {
                 nameEn: english,
                 nameRu: russian,
                 nameTr: turkish,
+                nameTm: turkmen,
                 countryId: countryId.id
             }, {
                 headers: {
@@ -600,13 +607,14 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    const editCity = async (id, english, russian, turkish, countryId) => {
+    const editCity = async (id, english, russian, turkish, turkmen, countryId) => {
         try {
             const token = localStorage.getItem('token');
             await axios.put(`${BASE_URL}country/edit-city/${id}`, {
                 nameEn: english,
                 nameRu: russian,
                 nameTr: turkish,
+                nameTm: turkmen,
                 countryId: countryId
             }, {
                 headers: {
@@ -642,7 +650,7 @@ export const GlobalProvider = ({ children }) => {
     const addMessage = async (id, message) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${BASE_URL}chat/add/${id}`, {text: message, messageId: id}, {
+            await axios.post(`${BASE_URL}chat/add/${id}`, {text: message, messageId: id}, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -659,7 +667,7 @@ export const GlobalProvider = ({ children }) => {
     const getMessages = async (page) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}chat/all?page=${page}`, {
+            const response = await axios.get(`${BASE_URL}chat/all?page=${page}&pageSize=6`, {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -719,7 +727,121 @@ export const GlobalProvider = ({ children }) => {
             console.error(error);
             setError(error.response?.data?.message || "Server error");
         }
-    } 
+    }
+
+    const addDangerousType = async(nameEn, nameRu, nameTr, nameTm) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.post(`${BASE_URL}dangerous-type/add`, {nameEn, nameRu, nameTr, nameTm}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const editDangerousType = async(id, nameEn, nameRu, nameTr, nameTm) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.put(`${BASE_URL}dangerous-type/edit/${id}`, {nameEn, nameRu, nameTr, nameTm}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const deleteDangerousType = async(id) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`${BASE_URL}dangerous-type/delete/${id}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const getDangerousType = async(page, limit) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}dangerous-type?page=${page}&pageSize=${limit}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const addTransportationType = async(nameEn, nameRu, nameTr, nameTm) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.post(`${BASE_URL}transportation-type/add`, {nameEn, nameRu, nameTr, nameTm}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const editTransportationType = async(id, nameEn, nameRu, nameTr, nameTm) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.put(`${BASE_URL}transportation-type/edit/${id}`, {nameEn, nameRu, nameTr, nameTm}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const deleteTransportationType = async(id) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`${BASE_URL}transportation-type/delete/${id}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const getTransportationType = async(page, limit) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}transportation-type?page=${page}&pageSize=${limit}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
 
 
     return (
@@ -786,7 +908,15 @@ export const GlobalProvider = ({ children }) => {
             singleMessage,
             deleteUser,
             changePaid,
-            deleteMessage
+            deleteMessage,
+            addDangerousType,
+            editDangerousType,
+            deleteDangerousType,
+            getDangerousType,
+            addTransportationType,
+            editTransportationType,
+            deleteTransportationType,
+            getTransportationType
         }}>
             {children}
         </GlobalContext.Provider>

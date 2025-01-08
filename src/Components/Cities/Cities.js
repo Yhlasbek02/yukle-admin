@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { InnerLayout } from '../../styles/Layouts';
-import styled from 'styled-components';
+import { Box, Table, TableHead, TableRow, TableCell, TableBody, Button, TextField, Select, MenuItem, Typography, Pagination, PaginationItem } from '@mui/material';
 import { useGlobalContext } from '../../context/globalContext';
-import { trash, edit, left, right } from '../../utils/Icons';
 import ConfirmationModal from '../ConfirmationModal/Modal';
 import AddCityModal from '../addModalForm/addModal';
 import EditCityModal from '../addModalForm/editCityModal';
@@ -33,6 +31,7 @@ export default function Cities() {
     const [englishEdit, setEnglishEdit] = useState('');
     const [russianEdit, setRussianEdit] = useState('');
     const [turkishEdit, setTurkishEdit] = useState('');
+    const [turkmenEdit, setTurkmenEdit] = useState('');
     const [countryIdEdit, setCountryIdEdit] = useState('');
     const [isAddCityModalOpen, setAddCityModalOpen] = useState(false);
     const [isEditCityModal, setEditCityModal] = useState(false);
@@ -81,7 +80,6 @@ export default function Cities() {
 
             if (searchKey && currentPage > updatedTotalPages) {
                 setCurrentPage(updatedTotalPages);
-                // Ensure startIndex is at least 1
                 const newStartIndex = Math.max((updatedTotalPages - 1) * 8 + 1, 1);
                 setStartIndex(newStartIndex);
             }
@@ -94,15 +92,14 @@ export default function Cities() {
         }
     }
 
-    const openAddCityModal = () => {
-        setAddCityModalOpen(true);
-    };
+    const openAddCityModal = () => setAddCityModalOpen(true);
 
-    const openEditCity = (id, english, russian, turkish, countryId) => {
+    const openEditCity = (id, english, russian, turkish, turkmen, countryId) => {
         setId(id);
         setEnglishEdit(english);
         setRussianEdit(russian);
         setTurkishEdit(turkish);
+        setTurkmenEdit(turkmen)
         setCountryIdEdit(countryId);
         setEditCityModal(true);
     };
@@ -114,7 +111,6 @@ export default function Cities() {
         } else {
             await getCities('', currentPage, searchKey);
         }
-        
     };
 
     const closeAddCityModal = () => {
@@ -152,20 +148,20 @@ export default function Cities() {
         }
     };
 
-    const handlePageChange = async (newPage) => {
+    const handlePageChange = async (event, newPage) => {
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 8 + 1);
+        setStartIndex((newPage - 1) * 6 + 1);
         try {
             if (selectedCountry) {
-                await getCities(newPage, searchKey, selectedCountry.uuid);
+                await getCities(selectedCountry.uuid, newPage, searchKey);
             } else {
-                const country = '';
-                await getCities(newPage, searchKey, country);
+                await getCities('', newPage, searchKey);
             }
         } catch (error) {
             console.error(error);
         }
     };
+
 
     const handleSearchChange = (event) => {
         setSearchKey(event.target.value);
@@ -190,256 +186,112 @@ export default function Cities() {
     };
 
     return (
-        <InnerLayout>
-            <UserStyled>
-                <div className="country-select">
-                    <div>
-                        <label>Filter: </label>
-                        <select id="country" onChange={handleCountryChange}>
-                            <option value={null}>-- Select Country --</option>
-                            {allCountries.countries.map((country) => (
-                                <option key={country.uuid} value={country.uuid}>
-                                    {country.nameEn}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <input
-                        placeholder="Search..."
-                        type="text"
-                        id="search"
-                        value={searchKey}
-                        onChange={handleSearchChange}
-                    />
-                    <button onClick={openAddCityModal}>Add City</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>English</th>
-                            <th>Russian</th>
-                            <th>Turkish</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {cities.cities
-                            .filter(
-                                (city) =>
-                                    city.nameEn.toLowerCase().includes(searchKey.toLowerCase()) ||
-                                    city.nameRu.toLowerCase().includes(searchKey.toLowerCase()) ||
-                                    city.nameTr.toLowerCase().includes(searchKey.toLowerCase())
-                            )
-                            .map((city, index) => {
-                                const cityId = index + startIndex;
-                                const truncatedEn =
-                                    city.nameEn.length > 20
-                                        ? `${city.nameEn.substring(0, 20)}...`
-                                        : city.nameEn;
-                                const truncatedRu =
-                                    city.nameRu.length > 20
-                                        ? `${city.nameRu.substring(0, 20)}...`
-                                        : city.nameRu;
-                                const truncatedTr =
-                                    city.nameTr.length > 20
-                                        ? `${city.nameTr.substring(0, 20)}...`
-                                        : city.nameTr;
-                                return (
-                                    <tr key={cityId}>
-                                        <td>{cityId}</td>
-                                        <td>{truncatedEn || 'Not given'}</td>
-                                        <td>{truncatedRu || 'Not given'}</td>
-                                        <td>{truncatedTr || 'Not given'}</td>
-                                        <td>
-                                            <button
-                                                style={{
-                                                    padding: '4px 12px',
-                                                    fontSize: '1rem',
-                                                    backgroundColor: '#3498db',
-                                                    color: '#fff',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    marginRight: '10px',
-                                                }}
-                                                onClick={() =>
-                                                    openEditCity(
-                                                        city.uuid,
-                                                        city.nameEn,
-                                                        city.nameRu,
-                                                        city.nameTr,
-                                                        city.country.id
-                                                    )
-                                                }
-                                            >
-                                                {edit}
-                                            </button>
-                                            <button
-                                                style={{
-                                                    padding: '4px 12px',
-                                                    fontSize: '1rem',
-                                                    backgroundColor: '#e74c3c',
-                                                    color: '#fff',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    marginRight: '10px',
-                                                }}
-                                                onClick={() => handleDeleteClick(city.uuid)}
-                                            >
-                                                {trash}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                    </tbody>
-                </table>
-                <div className="pagination">
-                    <button
-                        onClick={() => handlePageChange(cities.currentPage - 1)}
-                        disabled={parseInt(cities.currentPage) === 1}
-                    >
-                        {left}
-                    </button>
-                    <span>
-                        {' '}
-                        Page {cities.currentPage} of {cities.totalPages}{' '}
-                    </span>
-                    <button
-                        onClick={() => handlePageChange(parseInt(cities.currentPage) + 1)}
-                        disabled={parseInt(cities.currentPage) === parseInt(cities.totalPages)}
-                    >
-                        {right}
-                    </button>
-                </div>
-            </UserStyled>
+        <Box sx={{ padding: '2rem' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <Select
+                    value={selectedCountry?.uuid || ''}
+                    onChange={handleCountryChange}
+                    displayEmpty
+                    sx={{ minWidth: '200px' }}
+                >
+                    <MenuItem value="">-- Select Country --</MenuItem>
+                    {allCountries.countries.map((country) => (
+                        <MenuItem key={country.uuid} value={country.uuid}>
+                            {country.nameEn}
+                        </MenuItem>
+                    ))}
+                </Select>
+                <TextField
+                    placeholder="Search..."
+                    value={searchKey}
+                    onChange={handleSearchChange}
+                    sx={{ minWidth: '300px' }}
+                />
+                <Button variant="contained" color="primary" onClick={openAddCityModal}>
+                    Add City
+                </Button>
+            </Box>
+            <Table>
+                <TableHead>
+                    <TableRow sx={{background: 'blue'}}>
+                        <TableCell sx={{ color: "#fff" }}>ID</TableCell>
+                        <TableCell sx={{ color: "#fff" }}>English</TableCell>
+                        <TableCell sx={{ color: "#fff" }}>Russian</TableCell>
+                        <TableCell sx={{ color: "#fff" }}>Turkish</TableCell>
+                        <TableCell sx={{ color: "#fff" }}>Turkmen</TableCell>
+                        <TableCell sx={{ color: "#fff" }}>Actions</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {cities.cities
+                        .filter(
+                            (city) =>
+                                city.nameEn.toLowerCase().includes(searchKey.toLowerCase()) ||
+                                city.nameRu.toLowerCase().includes(searchKey.toLowerCase()) ||
+                                city.nameTr.toLowerCase().includes(searchKey.toLowerCase())
+                        )
+                        .map((city, index) => (
+                            <TableRow key={city.uuid}>
+                                <TableCell>{index + startIndex}</TableCell>
+                                <TableCell>{city.nameEn || 'Not given'}</TableCell>
+                                <TableCell>{city.nameRu || 'Not given'}</TableCell>
+                                <TableCell>{city.nameTr || 'Not given'}</TableCell>
+                                <TableCell>{city.nameTm || 'Not given'}</TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant="contained"
+                                        color="info"
+                                        onClick={() =>
+                                            openEditCity(
+                                                city.uuid,
+                                                city.nameEn,
+                                                city.nameRu,
+                                                city.nameTr,
+                                                city.nameTm,
+                                                city.country.id
+                                            )
+                                        }
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => handleDeleteClick(city.uuid)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                </TableBody>
+            </Table>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                <Pagination
+                    count={cities.totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                />
+            </Box>
+
             <ConfirmationModal
-                isOpen={selectedCity !== null ? 'true' : undefined}
+                isOpen={Boolean(selectedCity)}
                 onClose={() => setSelectedCity(null)}
                 onConfirm={handleConfirmDelete}
-                message={'Are you sure to delete?'}
+                message="Are you sure you want to delete this city?"
             />
-            <AddCityModal
-                isopen={isAddCityModalOpen.toString()}
-                onClose={closeAddCityModal}
-                onSave={handleSave}
-            />
+            <AddCityModal isopen={isAddCityModalOpen} onClose={closeAddCityModal} />
             <EditCityModal
-                isopen={isEditCityModal.toString()}
+                isopen={isEditCityModal}
                 onClose={closeEditModal}
                 cityId={id}
                 englishData={englishEdit}
                 russianData={russianEdit}
                 turkishData={turkishEdit}
+                turkmenData={turkmenEdit}
                 countryId={countryIdEdit}
             />
-        </InnerLayout>
+        </Box>
     );
 }
-
-const UserStyled = styled.div`
-  #search {
-    padding: 0.5rem;
-    width: 30%;
-    border-radius: 10px;
-  }
-  .addForm {
-    display: flex;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-  .addForm input {
-    width: 33%;
-    height: 35px;
-    margin-right: 10px;
-    border-radius: 4px;
-    padding: 0.5rem;
-  }
-  .addForm select {
-    height: 35px;
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin-right: 10px;
-  }
-  .addForm button {
-    height: 35px;
-    font-size: 15px;
-  }
-  .pagination {
-    justify-content: center;
-    align-items: center;
-  }
-  span {
-    padding: 0 0.5rem;
-    margin-top: 1rem;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #000;
-    margin-bottom: 1rem;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 0.6rem;
-  }
-
-  th,
-  td {
-    font-size: 0.85rem;
-    padding: 0.55rem;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-
-  th {
-    background-color: #f2f2f2;
-  }
-
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-
-  tr:hover {
-    background-color: #f0f0f0;
-  }
-
-  p {
-    margin-top: 1rem;
-    font-size: 1rem;
-  }
-
-  div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  button {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-    &:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  }
-  .country-select {
-    margin-bottom: 1rem;
-
-    label {
-      margin-right: 0.5rem;
-    }
-
-    select {
-      padding: 0.5rem;
-      border-radius: 10px;
-    }
-  }
-`;

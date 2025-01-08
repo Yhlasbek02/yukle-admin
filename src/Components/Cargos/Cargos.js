@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { InnerLayout } from '../../styles/Layouts';
-import styled from 'styled-components';
-import { useGlobalContext } from '../../context/globalContext';
-import { trash, right, left } from '../../utils/Icons';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, Typography, Modal } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import moment from 'moment';
-import ConfirmationModal from '../ConfirmationModal/Modal';
+import { useGlobalContext } from '../../context/globalContext';
 
 export default function Cargos() {
   const { cargos, getCargos, deleteCargo } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const [startIndex, setStartIndex] = useState(1);
   const [selectedCargo, setSelectedCargo] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -19,23 +17,25 @@ export default function Cargos() {
         console.error(error);
       }
     };
-
     fetchData();
   }, [currentPage]);
-  const page = cargos.currentPage;
-  const total = cargos.totalPages;
-  const handlePageChange = async (newPage) => {
+
+  const page = cargos.currentPage || 1;
+  const total = cargos.totalPages || 1;
+
+  const handlePageChange = async (event, newPage) => {
     setCurrentPage(newPage);
-    setStartIndex((newPage - 1) * 6 + 1);
     try {
       await getCargos(newPage);
     } catch (error) {
       console.error(error);
     }
   };
+
   const handleDeleteClick = (id) => {
     setSelectedCargo(id);
   };
+
   const handleConfirmDelete = async () => {
     try {
       await deleteCargo(selectedCargo);
@@ -44,175 +44,122 @@ export default function Cargos() {
       if (cargos.cargos.length === 0 && currentPage > 1) {
         const newPage = currentPage - 1;
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 6 + 1);
         await getCargos(newPage);
       }
     } catch (error) {
       console.error(error);
     }
   };
+
   return (
-    <InnerLayout>
-      <UserStyled>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Email</th>
-              <th>Mobile Number</th>
-              <th>Date</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Weight</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h5" sx={{ mb: 2}}>
+        Cargos List
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{background: "blue"}}>
+              <TableCell sx={{ color: "#fff" }}>ID</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Name</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Type</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Email</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Mobile Number</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Date</TableCell>
+              <TableCell sx={{ color: "#fff" }}>From</TableCell>
+              <TableCell sx={{ color: "#fff" }}>To</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Weight</TableCell>
+              <TableCell sx={{ color: "#fff" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {cargos.cargos.map((cargo, index) => {
-              const cargoId = index + startIndex;
-              let typeName;
-              if (cargo.type) {
-                typeName = cargo.type.nameEn
-              } else {
-                typeName = 'Not given'
-              }
-              const fromCountryName = cargo.from_country.nameEn;
-              const toCountryName = cargo.to_country.nameEn;
-              const fromCityName = cargo.from_city.nameEn;
-              const truncatedFrom =
-                fromCityName.length > 10
-                  ? `${fromCityName.substring(0, 10)}...`
-                  : fromCityName;
-              const toCityName = cargo.to_city.nameEn;
-              const truncatedTo =
-                toCityName.length > 10
-                  ? `${toCityName.substring(0, 10)}...`
-                  : toCityName;
-              const date = moment(cargo.createdAt).format("YYYY-MM-DD");
+              const cargoId = (currentPage - 1) * 6 + index + 1;
+              const typeName = cargo?.type?.nameEn || 'Not given';
+              const fromCountryName = cargo?.from_country?.nameEn || 'Not given';
+              const toCountryName = cargo?.to_country?.nameEn || 'Not given';
+              const fromCityName = cargo?.from_city?.nameEn.length > 10 ? `${cargo.from_city.nameEn.substring(0,10)}...` : cargo?.from_city?.nameEn || 'Not given';
+              const toCityName = cargo?.to_city?.nameEn.length > 10 ? `${cargo.to_city.nameEn.substring(0,10)}...` : cargo?.to_city?.nameEn || 'Not given';
+              const date = cargo?.createdAt ? moment(cargo.createdAt).format("YYYY-MM-DD") : 'Not given';
+
               return (
-                <tr key={cargoId}>
-                  <td>{cargoId}</td>
-                  <td>{cargo.name || 'Not given'}</td>
-                  <td>{typeName || 'Not given'}</td>
-                  <td>{cargo.email || 'Not given'}</td>
-                  <td>{cargo.phoneNumber || 'Not given'}</td>
-                  <td>{date || 'Not given'}</td>
-                  <td>{fromCountryName || 'Not given'}, {truncatedFrom || 'Not given'}</td>
-                  <td>{toCountryName || 'Not given'}, {truncatedTo || 'Not given'}</td>
-                  <td>{cargo.weight || 'Not given'}</td>
-                  <td>
-                    <button
-                      style={{
-                        padding: '4px 12px',
-                        fontSize: '1rem',
-                        backgroundColor: '#e74c3c',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginRight: '10px',
-                      }}
+                <TableRow key={cargo.uuid}>
+                  <TableCell>{cargoId}</TableCell>
+                  <TableCell>{cargo?.name || 'Not given'}</TableCell>
+                  <TableCell>{typeName}</TableCell>
+                  <TableCell>{cargo?.email || 'Not given'}</TableCell>
+                  <TableCell>{cargo?.phoneNumber || 'Not given'}</TableCell>
+                  <TableCell>{date}</TableCell>
+                  <TableCell>{`${fromCountryName}, ${fromCityName}`}</TableCell>
+                  <TableCell>{`${toCountryName}, ${toCityName}`}</TableCell>
+                  <TableCell>{cargo?.weight || 'Not given'}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      startIcon={<Delete />}
                       onClick={() => handleDeleteClick(cargo.uuid)}
                     >
-                      {trash}
-                    </button>
-                  </td>
-                </tr>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-        <div className='pagination'>
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={parseInt(page) === 1}
-          >
-            {left}
-          </button>
-          <span> Page {page} of {total} </span>
-          <button
-            onClick={() => handlePageChange(parseInt(page) + 1)}
-            disabled={parseInt(page) === parseInt(total)}
-          >
-            {right}
-          </button>
-        </div>
-      </UserStyled>
-      <ConfirmationModal
-        isOpen={selectedCargo !== null ? 'true' : undefined}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+        <Pagination
+          count={total}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
+      <Modal
+        open={Boolean(selectedCargo)}
         onClose={() => setSelectedCargo(null)}
-        onConfirm={handleConfirmDelete}
-        message={'Are you sure to delete?'}
-      />
-    </InnerLayout>
-  )
+        aria-labelledby="confirmation-modal"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Confirm Deletion
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Are you sure you want to delete this cargo?
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button
+              variant="outlined"
+              onClick={() => setSelectedCargo(null)}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleConfirmDelete}
+              color="error"
+            >
+              Confirm
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+    </Box>
+  );
 }
-
-
-const UserStyled = styled.div`
-    .pagination {
-      justify-content: center;
-      align-items: center;
-    }
-    span {
-        padding: 0 0.5rem;
-        margin-top: 1rem;
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: #000;
-        margin-bottom: 1rem;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 0.6rem;
-    }
-
-    th, td {
-      font-size: 0.85rem;
-        padding: 0.55rem;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tr:hover {
-        background-color: #f0f0f0;
-    }
-
-    p {
-        margin-top: 1rem;
-        font-size: 1rem;
-    }
-
-    div {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 0.75rem;
-    }
-
-    button {
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        background-color: #4caf50;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        outline: none;
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-    }
-`;

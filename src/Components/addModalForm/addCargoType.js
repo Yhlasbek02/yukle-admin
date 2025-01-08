@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
+import { Modal, Box, TextField, Button, Typography, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 const ModalOverlay = styled.div.attrs((props) => ({
   style: {
@@ -15,6 +17,7 @@ const ModalOverlay = styled.div.attrs((props) => ({
   background: rgba(0, 0, 0, 0.5);
   z-index: 1;
 `;
+
 const ModalContainer = styled.div`
   position: fixed;
   top: 50%;
@@ -35,11 +38,6 @@ const ModalHeader = styled.div`
   h2 {
     margin: 0;
   }
-
-  button {
-    padding: 8px;
-    cursor: pointer;
-  }
 `;
 
 const ModalBody = styled.div`
@@ -48,46 +46,32 @@ const ModalBody = styled.div`
     margin-bottom: 5px;
   }
 
-  input,
-  select {
+  .MuiTextField-root {
     width: 100%;
-    padding: 8px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
   }
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
-
-  button {
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-  }
 `;
 
-
-const AddCargoTypeModal = ({ isopen, onClose}) => {
-  const {addCargoType} = useGlobalContext();
+const AddCargoTypeModal = ({ isopen, onClose }) => {
+  const { addCargoType } = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
+  const [turkmen, setTurkmen] = useState('');
 
   const handleSave = async () => {
-    await addCargoType(english, russian, turkish);
-    console.log(english, russian, turkish);
+    await addCargoType(english, russian, turkish, turkmen);
     setEnglish('');
     setRussian('');
     setTurkish('');
+    setTurkmen('');
 
     // Close the modal
-    console.log('Added country');
+    console.log('Added cargo type');
     onClose();
   };
 
@@ -95,39 +79,51 @@ const AddCargoTypeModal = ({ isopen, onClose}) => {
     <ModalOverlay isopen={isopen} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2 style={{marginRight: "1.2rem"}}>Add Cargo Type</h2>
-          <button onClick={onClose}>X</button>
+          <Typography variant="h6">Add Cargo Type</Typography>
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
         </ModalHeader>
+
         <ModalBody>
-          <label htmlFor="english">English:</label>
-          <input
-            type="text"
-            id="english"
+          <TextField
+            label="English"
             value={english}
             onChange={(e) => setEnglish(e.target.value)}
+            variant="outlined"
+            fullWidth
           />
-          <label htmlFor="russian">Russian:</label>
-          <input
-            type="text"
-            id="russian"
+          <TextField
+            label="Russian"
             value={russian}
             onChange={(e) => setRussian(e.target.value)}
+            variant="outlined"
+            fullWidth
           />
-          <label htmlFor="turkish">Turkish:</label>
-          <input
-            type="text"
-            id="turkish"
+          <TextField
+            label="Turkish"
             value={turkish}
             onChange={(e) => setTurkish(e.target.value)}
+            variant="outlined"
+            fullWidth
+          />
+          <TextField
+            label="Turkmen"
+            value={turkmen}
+            onChange={(e) => setTurkmen(e.target.value)}
+            variant="outlined"
+            fullWidth
           />
         </ModalBody>
+
         <ModalFooter>
-          <button onClick={handleSave}>Save</button>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Save
+          </Button>
         </ModalFooter>
       </ModalContainer>
     </ModalOverlay>
   );
 };
-
 
 export default AddCargoTypeModal;

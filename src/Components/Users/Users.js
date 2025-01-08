@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { InnerLayout } from '../../styles/Layouts';
-import styled from 'styled-components';
+import {
+    Box,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography,
+    Paper,
+    IconButton,
+    Pagination,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useGlobalContext } from '../../context/globalContext';
-import { trash, edit, left, right } from '../../utils/Icons';
 import ConfirmationModal from '../ConfirmationModal/Modal';
+
 export default function Users() {
     const { users, getUsers, deleteUser, changePaid } = useGlobalContext();
     const [currentPage, setCurrentPage] = useState(1);
     const [startIndex, setStartIndex] = useState(1);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [selectedDetele, setSelectedDelete] = useState(null);
+    const [selectedDelete, setSelectedDelete] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -21,41 +36,25 @@ export default function Users() {
 
         fetchData();
     }, [currentPage]);
-    const page = users.currentPage;
-    const total = users.totalPages;
 
-    if (users === null || users === undefined) {
-        return <p>Loading...</p>;
-    }
-
-    const handlePageChange = async (newPage) => {
+    const handlePageChange = (event, newPage) => {
         setCurrentPage(newPage);
-        setStartIndex((newPage - 1) * 8 + 1);
-        try {
-            await getUsers(newPage);
-        } catch (error) {
-            console.error(error);
-        }
+        setStartIndex((newPage - 1) * 6 + 1);
     };
 
-    const handleDeleteClick = (id) => {
-        setSelectedDelete(id);
-    };
-
-    const handlePaidClick = (id) => {
-        setSelectedUser(id);
-    }
+    const handleDeleteClick = (id) => setSelectedDelete(id);
+    const handlePaidClick = (id) => setSelectedUser(id);
 
     const handleConfirmDelete = async () => {
         try {
-            await deleteUser(selectedDetele);
+            await deleteUser(selectedDelete);
             setSelectedDelete(null);
 
-            
-            if (users.users.length === 0 && currentPage > 1) { // Check for empty current page
+            // Handle pagination adjustments
+            if (users.users.length === 0 && currentPage > 1) {
                 const newPage = currentPage - 1;
                 setCurrentPage(newPage);
-                setStartIndex((newPage - 1) * 6 + 1);
+                setStartIndex((newPage - 1) * 8 + 1);
                 await getUsers(newPage);
             } else {
                 await getUsers(currentPage);
@@ -65,7 +64,6 @@ export default function Users() {
         }
     };
 
-
     const handleConfirmPaid = async () => {
         try {
             await changePaid(selectedUser);
@@ -74,164 +72,98 @@ export default function Users() {
         } catch (error) {
             console.error(error);
         }
+    };
+
+    if (!users) {
+        return <Typography variant="h6">Loading...</Typography>;
     }
+
     return (
-        <InnerLayout>
-            <UserStyled>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Surname</th>
-                            <th>Email</th>
-                            <th>Mobile Number</th>
-                            <th>Paid</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <Box sx={{ padding: '1rem' }}>
+            <Typography variant="h4" gutterBottom>
+                Users
+            </Typography>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow sx={{background: 'blue'}}>
+                            <TableCell sx={{color: "#fff"}}>ID</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Name</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Surname</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Email</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Mobile Number</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Paid</TableCell>
+                            <TableCell sx={{color: "#fff"}}>Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {users.users.map((user, index) => {
                             const userId = startIndex + index;
                             return (
-                                <tr key={userId}>
-                                    <td>{userId}</td>
-                                    <td>{user.name || 'Not given'}</td>
-                                    <td>{user.surname || 'Not given'}</td>
-                                    <td>{user.email || 'Not given'}</td>
-                                    <td>{user.phoneNumber || 'Not given'}</td>
-                                    <td>{user.paid ? <p style={{ color: "blue" }}>true</p> : <p style={{ color: "red" }}>false</p>}</td>
-                                    <td>
-                                        <button
-                                            style={{
-                                                padding: '4px 12px',
-                                                fontSize: '1rem',
-                                                backgroundColor: '#e74c3c',
-                                                color: '#fff',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                marginRight: '10px',
+                                <TableRow key={userId}>
+                                    <TableCell>{userId}</TableCell>
+                                    <TableCell>{user.name || 'Not given'}</TableCell>
+                                    <TableCell>{user.surname || 'Not given'}</TableCell>
+                                    <TableCell>{user.email || 'Not given'}</TableCell>
+                                    <TableCell>{user.phoneNumber || 'Not given'}</TableCell>
+                                    <TableCell>
+                                        <Typography
+                                            sx={{
+                                                color: user.paid ? 'blue' : 'red',
+                                                fontWeight: 'bold',
                                             }}
+                                        >
+                                            {user.paid ? 'true' : 'false'}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                        <IconButton
+                                            color="error"
                                             onClick={() => handleDeleteClick(user.uuid)}
                                         >
-                                            {trash}
-                                        </button>
-                                        <button
-                                            style={{
-                                                padding: '4px 12px',
-                                                fontSize: '1rem',
-                                                backgroundColor: 'blue',
-                                                color: '#fff',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                marginRight: '10px',
-                                            }}
+                                            <DeleteIcon />
+                                        </IconButton>
+                                        <IconButton
+                                            color="primary"
                                             onClick={() => handlePaidClick(user.uuid)}
                                         >
-                                            {edit}
-                                        </button>
-                                    </td>
-                                </tr>
+                                            <EditIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
                             );
                         })}
-                    </tbody>
-                </table>
-                <div className='pagination'>
-                    <button
-                        onClick={() => handlePageChange(page - 1)}
-                        disabled={parseInt(page) === 1}
-                    >
-                        {left}
-                    </button>
-                    <span> Page {page} of {total} </span>
-                    <button
-                        onClick={() => handlePageChange(parseInt(page) + 1)}
-                        disabled={parseInt(page) === parseInt(total)}
-                    >
-                        {right}
-                    </button>
-                </div>
-            </UserStyled>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '1rem',
+                }}
+            >
+                <Pagination
+                    count={users.totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                />
+            </Box>
+            {/* Modals */}
             <ConfirmationModal
-                isOpen={selectedDetele !== null ? 'true' : undefined}
+                isOpen={Boolean(selectedDelete)}
                 onClose={() => setSelectedDelete(null)}
                 onConfirm={handleConfirmDelete}
-                message={'Are you sure to delete?'}
+                message="Are you sure to delete this user?"
             />
-
             <ConfirmationModal
-                isOpen={selectedUser !== null ? 'true' : undefined}
+                isOpen={Boolean(selectedUser)}
                 onClose={() => setSelectedUser(null)}
                 onConfirm={handleConfirmPaid}
-                message={'Are you sure to change paid status'}
+                message="Are you sure to change the paid status?"
             />
-        </InnerLayout>
+        </Box>
     );
 }
-
-const UserStyled = styled.div`
-    .pagination {
-      justify-content: center;
-      align-items: center;
-    }
-    span {
-        padding: 0 0.5rem;
-        margin-top: 1rem;
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: #000;
-        margin-bottom: 1rem;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 0.6rem;
-    }
-
-    th, td {
-      font-size: 0.85rem;
-        padding: 0.55rem;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tr:hover {
-        background-color: #f0f0f0;
-    }
-
-    p {
-        font-size: 1rem;
-    }
-
-    div {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 0.75rem;
-    }
-
-    button {
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        background-color: #4caf50;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        outline: none;
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-    }
-`;

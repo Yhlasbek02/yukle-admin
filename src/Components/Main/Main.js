@@ -12,6 +12,9 @@ import Messages from '../Messages/Messages';
 import TransportTypes from '../TransportTypes/TransportTypes';
 import CargoTypes from '../CargoTypes/CargoTypes';
 import Cities from '../Cities/Cities';
+import DangerousTypes from '../DangerousTypes';
+import TransportationTypes from '../TransportationTypes';
+import TruckBodies from '../TruckBodies';
 
 function Main() {
     const [active, setActive] = useState(1)
@@ -41,6 +44,12 @@ function Main() {
                 return <TransportTypes />
             case 8:
                 return <CargoTypes />
+            case 9:
+                return <DangerousTypes />
+            case 10:
+                return <TransportationTypes />
+            case 11:
+                return <TruckBodies />
             default:
                 return <Users />
         }
@@ -64,15 +73,17 @@ function Main() {
 const AppStyled = styled.div`
     main{
       flex: 1;
+      margin-left: 250px;
       border-radius: 32px;
       overflow-x: hidden;
-      &::-webkit-scrollbar{
-        width: 0;
-      }
+      min-height: 100%;
+      margin-top: 3.5rem;
+      overflow-y: auto;
     }
     body {
         padding: 0;
         margin: 0;
+        min-height: 100vh;
     }
   `;
 

@@ -1,84 +1,72 @@
-import React, { useEffect, useRef } from 'react'
-import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef } from 'react';
+import { Box, Typography, IconButton, styled } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/globalContext';
-import { signout } from '../../utils/Icons';
 
 export default function Topbar() {
-    const { profile, getProfile, logout } = useGlobalContext();
-    const navigate = useNavigate();
-    let isCancelled = useRef(true);
+  const { profile, getProfile, logout } = useGlobalContext();
+  const navigate = useNavigate();
+  const isCancelled = useRef(true);
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login');
-        } else {
-            if (isCancelled.current) {
-                isCancelled.current = false;
-                getProfile();
-            }
-        }
-    }, []);
-
-    const handleLogout = async () => {
-      localStorage.removeItem('token');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
       navigate('/login');
-    };
+    } else {
+      if (isCancelled.current) {
+        isCancelled.current = false;
+        getProfile();
+      }
+    }
+  }, [getProfile, navigate]);
 
-    const username = profile?.username || '';
-    const email = profile?.email || '';
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
-    return (
-        <TopStyled>
-            <i className="fas fa-user-circle"></i>
-            <div className='right'>
-                <h2>{username}</h2>
-                <p>{email}</p>
-            </div>
+  const username = profile?.username || 'User';
+  const email = profile?.email || 'user@example.com';
 
-            <div className='left'>
-                <li onClick={handleLogout}>
-                    {signout}
-                </li>
-            </div>
-        </TopStyled>
-    );
+  return (
+    <TopbarContainer>
+      <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+        <AccountCircleIcon sx={{ fontSize: 36, marginRight: 2, color: '#4D9FFF' }} />
+        <Box>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold', color: "#fff" }}>
+            {username}
+          </Typography>
+          <Typography variant="body2" color="#fff">
+            {email}
+          </Typography>
+        </Box>
+      </Box>
+      <IconButton
+        color="#fff"
+        onClick={handleLogout}
+        sx={{
+          backgroundColor: 'rgba(77, 159, 255, 0.1)',
+          '&:hover': {
+            backgroundColor: 'rgba(77, 159, 255, 0.2)',
+          },
+        }}
+      >
+        <LogoutIcon />
+      </IconButton>
+    </TopbarContainer>
+  );
 }
 
-const TopStyled = styled.div`
-
-  display: flex;
-  padding: 0.5rem 1rem;
-  top: 0;
-  width: 100%;
-  height: 3.5rem;
-  background-color: rgba(77, 159, 255, 0.2);
-
-  i {
-    font-size: 2rem;
-    padding: 10px;
-  }
-
-  h2 {
-    font-size: 1rem;
-    color: #4D9FFF;
-  }
-  p {
-    font-size: 0.75rem;
-  }
-  .right {
-    flex-grow: 1;
-  }
-
-  .left {
-    float: left; /* Change to "float: right" for Sign Out on right */
-  }
-
-  body {
-    font-family: sans-serif;
-  }
-  li {
-    cursor: pointer;
-  }
-`;
+const TopbarContainer = styled(Box)(({ theme }) => ({
+  position: 'fixed',
+  zIndex: 1000,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '0.5rem 1rem',
+  backgroundColor: 'rgba(77, 159, 255, 1)',
+  height: '3.5rem',
+  width: '100%'
+}));

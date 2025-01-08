@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
+import { Modal, Box, TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 const ModalOverlay = styled.div.attrs((props) => ({
   style: {
@@ -15,6 +16,7 @@ const ModalOverlay = styled.div.attrs((props) => ({
   background: rgba(0, 0, 0, 0.5);
   z-index: 1;
 `;
+
 const ModalContainer = styled.div`
   position: fixed;
   top: 50%;
@@ -25,7 +27,6 @@ const ModalContainer = styled.div`
   border-radius: 8px;
   z-index: 2;
 `;
-
 const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -43,112 +44,110 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+  margin-bottom: 20px;
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
-
-  button {
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    outline: none;
-  }
 `;
 
-
-const AddCityModal = ({ isopen, onClose, onSave}) => {
-  const {addCity, allCountries} = useGlobalContext();
+const AddCityModal = ({ isopen, onClose }) => {
+  const { addCity, allCountries } = useGlobalContext();
   const [english, setEnglish] = useState('');
   const [russian, setRussian] = useState('');
   const [turkish, setTurkish] = useState('');
+  const [turkmen, setTurkmen] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
 
   const selectCountry = (event) => {
-        const selectedCountryId = event.target.value;
-        const selectedCountryObj = allCountries.countries.find(
-            (country) => country.id === selectedCountryId
-        );
-        setSelectedCountry(selectedCountryObj);
-    };
-  const handleSave = async () => {
-    await addCity(english, russian, turkish, selectedCountry);
-    console.log(english, russian, turkish, selectedCountry);
-    setEnglish('');
-    setRussian('');
-    setTurkish('');
-    setSelectedCountry('');
-
-    // Close the modal
-    console.log('Added city');
-    onClose();
+    const selectedCountryId = event.target.value;
+    const selectedCountryObj = allCountries.countries.find(
+      (country) => country.id === selectedCountryId
+    );
+    setSelectedCountry(selectedCountryObj);
   };
 
+  const handleSave = async () => {
+    try {
+      if (!english || !russian || !turkish || !turkmen || !selectedCountry) {
+        alert('Please fill all fields.');
+        return;
+      }
+      await addCity(english, russian, turkish, turkmen, selectedCountry);
+      setEnglish('');
+      setRussian('');
+      setTurkish('');
+      setSelectedCountry('');
+      onClose();
+    } catch (error) {
+      console.error('Failed to add city:', error);
+      alert('An error occurred while adding the city.');
+    }
+  };
+
+
   return (
-    <ModalOverlay isopen={isopen} onClick={onClose}>
+    <ModalOverlay isopen={isopen.toString()} onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2 style={{marginRight: "1.2rem"}}>Add City</h2>
-          <button onClick={onClose}>X</button>
+          <h2 style={{ marginRight: '1.2rem' }}>Add City</h2>
+          <Button onClick={onClose}>X</Button>
         </ModalHeader>
         <ModalBody>
-          <label htmlFor="english">English:</label>
-          <input
-            type="text"
-            id="english"
+          <TextField
+            label="English"
+            fullWidth
             value={english}
             onChange={(e) => setEnglish(e.target.value)}
+            margin="normal"
           />
-          <label htmlFor="russian">Russian:</label>
-          <input
-            type="text"
-            id="russian"
+          <TextField
+            label="Russian"
+            fullWidth
             value={russian}
             onChange={(e) => setRussian(e.target.value)}
+            margin="normal"
           />
-          <label htmlFor="turkish">Turkish:</label>
-          <input
-            type="text"
-            id="turkish"
+          <TextField
+            label="Turkish"
+            fullWidth
             value={turkish}
             onChange={(e) => setTurkish(e.target.value)}
+            margin="normal"
           />
-          <label htmlFor="country">Country:</label>
-          <select
-            id="country"
-            onChange={selectCountry}
-          >
-            <option value={null}>-- Select Country --</option>
-            {allCountries.countries.map((country) => (
-              <option key={country.id} value={country.id}>
-                {country.nameEn}
-              </option>
-            ))}
-          </select>
+          <TextField
+            label="Turkmen"
+            fullWidth
+            value={turkmen}
+            onChange={(e) => setTurkmen(e.target.value)}
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Country</InputLabel>
+            <Select
+              value={selectedCountry?.id || ''}
+              onChange={selectCountry}
+              label="Country"
+            >
+              <MenuItem value="">
+                <em>-- Select Country --</em>
+              </MenuItem>
+              {allCountries.countries.map((country) => (
+                <MenuItem key={country.id} value={country.id}>
+                  {country.nameEn}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </ModalBody>
         <ModalFooter>
-          <button onClick={handleSave}>Save</button>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Save
+          </Button>
         </ModalFooter>
       </ModalContainer>
     </ModalOverlay>
   );
 };
-
 
 export default AddCityModal;

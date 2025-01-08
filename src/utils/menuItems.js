@@ -31,4 +31,16 @@ export const menuItems = [
         id: 8,
         title: "Cargo Types"
     },
+    {
+        id: 9,
+        title: "Dangerous Types"
+    },
+    {
+        id: 10,
+        title: "Shipping Modes"
+    },
+    {
+        id: 11,
+        title: "Truck Bodies"
+    }
 ]

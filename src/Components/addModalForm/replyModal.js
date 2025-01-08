@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
+import { Button, TextField } from '@mui/material';
 
 const ModalOverlay = styled.div.attrs((props) => ({
-    style: {
-        display: props.isopen === 'true' ? 'block' : 'none',
-    },
+  style: {
+    display: props.isopen === 'true' ? 'block' : 'none',
+  },
 }))`
   position: fixed;
   top: 0;
@@ -15,6 +16,7 @@ const ModalOverlay = styled.div.attrs((props) => ({
   background: rgba(0, 0, 0, 0.5);
   z-index: 1;
 `;
+
 const ModalContainer = styled.div`
   position: fixed;
   top: 50%;
@@ -54,7 +56,7 @@ const ModalBody = styled.div`
     padding: 8px;
     border-radius: 8px;
     margin-bottom: 10px;
-    max-width: 70%; /* Adjust the maximum width for user messages */
+    width: 40%; /* Adjust the maximum width for user messages */
     align-self: flex-start;
   }
 
@@ -64,105 +66,92 @@ const ModalBody = styled.div`
     padding: 8px;
     border-radius: 8px;
     margin-bottom: 10px;
-    max-width: 70%; /* Adjust the maximum width for admin messages */
+    width: 40%; /* Adjust the maximum width for admin messages */
     align-self: flex-end;
   }
-  
 `;
 
 const ModalFooter = styled.div`
   text-align: right;
   display: flex;
+  align-items: center;
   width: 100%;
 
-  button {
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    font-size: 1.2rem;
-    border-radius: 4px;
-    outline: none;
-  }
-  input {
+  .text-field {
+    flex: 1;
     margin-right: 1rem;
-    width: 80%;
-    padding: 8px 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
   }
 `;
 
-
 const ReplyModal = ({ isopen, onClose, messageId }) => {
-    const { getSingleMessage, addMessage, singleMessage } = useGlobalContext();
-    const [english, setEnglish] = useState('');
-    const [messageData, setMessageData] = useState({});
-    const [adminMessages, setAdminMessages] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getSingleMessage(messageId);
+  const { getSingleMessage, addMessage } = useGlobalContext();
+  const [english, setEnglish] = useState('');
+  const [messageData, setMessageData] = useState({});
+  const [adminMessages, setAdminMessages] = useState([]);
 
-                setMessageData(response.data.message);
-                setAdminMessages(response.data.adminMessages);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        if (messageId) {
-            fetchData();
-        }
-    }, [messageId]);
-
-    useEffect(() => {
-        console.log(messageData, adminMessages);
-    }, [messageData, adminMessages]);
-
-
-    const handleReply = async () => {
-        try {
-            await addMessage(messageId, english);
-            setEnglish('');
-            console.log('Replied');
-            await getSingleMessage(messageId);
-            const updatedMessageData = await getSingleMessage(messageId);
-
-            setMessageData(updatedMessageData.data.message);
-            setAdminMessages(updatedMessageData.data.adminMessages);
-        } catch (error) {
-            console.log(error);
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getSingleMessage(messageId);
+        setMessageData(response.data.message);
+        setAdminMessages(response.data.adminMessages);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    return (
-        <ModalOverlay isopen={isopen} onClick={onClose}>
-            <ModalContainer onClick={(e) => e.stopPropagation()}>
-                <ModalHeader>
-                    <h2 style={{ marginRight: "1.2rem" }}>Chat center</h2>
-                    <button onClick={onClose}>X</button>
-                </ModalHeader>
-                <ModalBody>
-                    {messageData && (
-                        <div className="user-message">{messageData.text}</div>
-                    )}
-                    {adminMessages.map((adminMessage) => (
-                        <div key={adminMessage.uuid} className="admin-message">
-                            {adminMessage.text}
-                        </div>
-                    ))}
-                </ModalBody>
-                <ModalFooter>
-                    <input type="text" value={english} onChange={(e) => setEnglish(e.target.value)} id="english" />
-                    <button onClick={handleReply}>Reply</button>
-                </ModalFooter>
-            </ModalContainer>
-        </ModalOverlay>
-    );
-};
+    if (messageId) {
+      fetchData();
+    }
+  }, [messageId]);
 
+  const handleReply = async () => {
+    try {
+      await addMessage(messageId, english);
+      setEnglish('');
+      const updatedMessageData = await getSingleMessage(messageId);
+      setMessageData(updatedMessageData.data.message);
+      setAdminMessages(updatedMessageData.data.adminMessages);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <ModalOverlay isopen={isopen} onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <ModalHeader>
+          <h2 style={{ marginRight: '1.2rem' }}>Chat Center</h2>
+          <Button variant="text" onClick={onClose}>X</Button>
+        </ModalHeader>
+        <ModalBody>
+          {messageData && <div className="user-message">{messageData.text}</div>}
+          {adminMessages.map((adminMessage) => (
+            <div key={adminMessage.uuid} className="admin-message">
+              {adminMessage.text}
+            </div>
+          ))}
+        </ModalBody>
+        <ModalFooter>
+          <TextField
+            className="text-field"
+            variant="outlined"
+            size="small"
+            value={english}
+            onChange={(e) => setEnglish(e.target.value)}
+            placeholder="Type your reply..."
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleReply}
+          >
+            Reply
+          </Button>
+        </ModalFooter>
+      </ModalContainer>
+    </ModalOverlay>
+  );
+};
 
 export default ReplyModal;
