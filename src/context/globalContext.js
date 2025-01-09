@@ -786,6 +786,63 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    const addTruckBody = async(nameEn, nameRu, nameTr, nameTm, transportTypeId) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.post(`${BASE_URL}truck-body/add`, {nameEn, nameRu, nameTr, nameTm, transportTypeId}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const editTruckBody = async(id, nameEn, nameRu, nameTr, nameTm, transportTypeId) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.put(`${BASE_URL}truck-body/edit/${id}`, {nameEn, nameRu, nameTr, nameTm, transportTypeId}, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const deleteTruckBody = async(id) => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`${BASE_URL}truck-body/delete/${id}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
+    const getTruckBodies = async(page, limit) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}truck-body?page=${page}&pageSize=${limit}`, {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "Server error");
+        }
+    }
+
     const addTransportationType = async(nameEn, nameRu, nameTr, nameTm) => {
         try {
             const token = localStorage.getItem("token");
@@ -916,7 +973,11 @@ export const GlobalProvider = ({ children }) => {
             addTransportationType,
             editTransportationType,
             deleteTransportationType,
-            getTransportationType
+            getTransportationType,
+            addTruckBody,
+            editTruckBody,
+            deleteTruckBody,
+            getTruckBodies
         }}>
             {children}
         </GlobalContext.Provider>
